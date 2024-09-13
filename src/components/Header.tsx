@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 export function Header() {
   return (
-    <div className="flex items-center justify-between px-4 py-10 max-w-screen-xl mx-auto w-full flex-wrap">
+    <div className="flex items-center justify-between px-8 py-10 max-w-screen-xl mx-auto w-full flex-wrap">
       <h1 className="display">AptosProps</h1>
 
       <div className="flex gap-2 items-center flex-wrap">

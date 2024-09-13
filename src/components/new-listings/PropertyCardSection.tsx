@@ -49,11 +49,11 @@ export function PropertyCardSection(
                             </div>
                             <div className="flex flex-col gap-4 w-full items-center border border-indigo-800 rounded-lg py-4 shadow-md">
                                 <p className="text-xs font-bold text-center">Property Fair Value</p>
-                                <p className="text-xs font-normal text-secondary-text">$425000</p>
+                                <p className="text-xs font-normal text-secondary-text">$ 425000</p>
                             </div>
                             <div className="flex flex-col gap-4 w-full items-center border border-indigo-800 rounded-lg py-4 shadow-md">
                                 <p className="text-xs font-bold text-center">Individual Token Price</p>
-                                <p className="text-xs font-normal text-secondary-text">$50</p>
+                                <p className="text-xs font-normal text-secondary-text">$ 50</p>
                             </div>
                         </div>
 

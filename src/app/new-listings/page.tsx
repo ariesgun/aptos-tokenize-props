@@ -23,8 +23,8 @@ import { ConfirmButton } from "@/components/ui/confirm-button";
 import { createCollection } from "@/entry-functions/create_collection";
 import Link from "next/link";
 import Image from "next/image";
-import { PropertyCardSection } from "./components/PropertyCardSection";
-import { MintCard } from "./components/MintCard";
+import { PropertyCardSection } from "@/components/new-listings/PropertyCardSection";
+import { MintCard } from "@/components/new-listings/MintCard";
 
 function App() {
     // Wallet Adapter provider
@@ -138,7 +138,7 @@ function App() {
             <Header />
 
             <div className="max-w-screen-xl mx-auto w-full my-4">
-                <div className="grid grid-cols-3 gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-8 px-4">
                     <PropertyCardSection />
                     <PropertyCardSection />
                     <PropertyCardSection />
