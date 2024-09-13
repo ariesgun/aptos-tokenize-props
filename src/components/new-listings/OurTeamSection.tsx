@@ -7,7 +7,7 @@ import { ConfigTeamMember, config } from "@/config";
 import Twitter from "@/assets/icons/twitter.svg";
 import Discord from "@/assets/icons/discord.svg";
 
-interface OurTeamSectionProps {}
+interface OurTeamSectionProps { }
 
 export const OurTeamSection: React.FC<OurTeamSectionProps> = () => {
   if (!config.ourTeam) return null;
@@ -37,12 +37,12 @@ const TeamCard: FC<{ member: ConfigTeamMember }> = ({ member }) => {
           {member.name}
           {member.socials?.twitter && (
             <a target="_blank" href={member.socials.twitter}>
-              <Image width={16} height={16} src={Twitter} className="dark:invert" />
+              <Image width={16} height={16} src={Twitter.src} className="dark:invert" />
             </a>
           )}
           {member.socials?.discord && (
             <a target="_blank" href={member.socials.discord}>
-              <Image width={16} height={16} src={Discord} className="dark:invert" />
+              <Image width={16} height={16} src={Discord.src} className="dark:invert" />
             </a>
           )}
         </CardTitle>
