@@ -52,44 +52,50 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
 
   return (
     <section className="hero-container flex flex-col md:flex-row gap-6 px-4 max-w-screen-xl mx-auto w-full">
-      <Image
-        src={collection?.cdn_asset_uris.cdn_image_uri ?? collection?.cdn_asset_uris.cdn_animation_uri ?? Placeholder1.src}
-        rounded
-        className="w-full md:basis-2/5 aspect-square object-cover self-center"
-      />
+      <div className="grid gap-4 md:basis-2/5 w-full">
+        <div>
+          <Image
+            src={collection?.cdn_asset_uris.cdn_image_uri ?? collection?.cdn_asset_uris.cdn_animation_uri ?? Placeholder1.src}
+            className="w-full aspect-square object-cover self-center rounded-lg"
+          />
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <Image className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-1.jpg" alt="" />
+          </div>
+          <div>
+            <Image className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-1.jpg" alt="" />
+          </div>
+          <div>
+            <Image className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-2.jpg" alt="" />
+          </div>
+          <div>
+            <Image className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-3.jpg" alt="" />
+          </div>
+          <div>
+            <Image className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-4.jpg" alt="" />
+          </div>
+          <div>
+            <Image className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-5.jpg" alt="" />
+          </div>
+        </div>
+      </div>
+
       <div className="basis-3/5 flex flex-col gap-4">
         <h1 className="title-md">{collection?.collection_name ?? config.defaultCollection?.name}</h1>
         {/* <Socials /> */}
         <p className="body-sm">{collection?.description ?? config.defaultCollection?.description}</p>
 
-        <Card>
-          <CardContent
-            fullPadding
-            className="flex flex-col md:flex-row gap-4 md:justify-between items-start md:items-center flex-wrap"
-          >
-            <form onSubmit={mintNft} className="flex flex-col md:flex-row gap-4 w-full md:basis-1/4">
-              <Input
-                type="number"
-                disabled={!data?.isMintActive}
-                value={nftCount}
-                onChange={(e) => setNftCount(parseInt(e.currentTarget.value, 10))}
-              />
-              <Button className="h-16 md:h-auto" type="submit" disabled={!data?.isMintActive}>
-                Mint
-              </Button>
-            </form>
-            <div className="flex flex-col gap-2 w-full md:basis-1/3">
-              <p className="label-sm">You can mint up to</p>
-              <p className="body-md">{mintUpTo > 1 ? `${mintUpTo} NFTs` : `${mintUpTo} NFT`}</p>
-            </div>
-            <div className="flex flex-col gap-2 w-full md:basis-1/3">
-              <p className="label-sm text-secondary-text">
-                {clampNumber(totalMinted)} / {clampNumber(maxSupply)} Minted
-              </p>
-              <Progress value={(totalMinted / maxSupply) * 100} className="h-2" />
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex flex-row gap-6 w-full">
+          <div className="flex flex-col gap-4 w-full items-center border border-indigo-800 rounded-lg py-4 shadow-md">
+            <p className="text-base font-bold text-center">Property Fair Value</p>
+            <p className="text-base font-normal text-secondary-text">$ 425000</p>
+          </div>
+          <div className="flex flex-col gap-4 w-full items-center border border-indigo-800 rounded-lg py-4 shadow-md">
+            <p className="text-base font-bold text-center">Annual Rental Yield</p>
+            <p className="text-base font-normal text-secondary-text">14 %</p>
+          </div>
+        </div>
 
         <div className="flex gap-x-2 items-center flex-wrap justify-between">
           <p className="whitespace-nowrap body-sm-semibold">Collection Address</p>
@@ -101,7 +107,7 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
               target="_blank"
               href={`https://explorer.aptoslabs.com/account/${collection?.collection_id}?network=${NETWORK}`}
             >
-              View on Explorer <Image src={ExternalLink} />
+              View on Explorer <Image src={ExternalLink.src} />
             </a>
           </div>
         </div>
@@ -145,7 +151,7 @@ const AddressButton: FC<{ address: string }> = ({ address }) => {
       ) : (
         <>
           {truncateAddress(address)}
-          <Image src={Copy} className="dark:invert" />
+          <Image src={Copy.src} className="dark:invert" />
         </>
       )}
     </Button>

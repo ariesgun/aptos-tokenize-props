@@ -26,6 +26,7 @@ import { StatsSection } from "@/components/new-listings/StatsSection";
 import { ConnectWalletAlert } from "@/components/new-listings/ConnectWalletAlert";
 import { HeroSection } from "@/components/new-listings/HeroSection";
 import { Footer } from "@/components/Footer";
+import { MintCard } from "@/components/new-listings/MintCard";
 
 export default function Page() {
     const { data, isLoading } = useGetCollectionData();
@@ -48,15 +49,10 @@ export default function Page() {
         <>
             <Header />
             <div style={{ overflow: "hidden" }} className="overflow-hidden">
-                <main className="flex flex-col gap-10 md:gap-16 mt-6">
+                <main className="flex flex-col gap-10 md:gap-16 mt-6 max-w-screen-lg mx-auto">
                     <ConnectWalletAlert />
                     <HeroSection />
-                    <BannerSection />
-                    <HowToMintSection />
-                    <StatsSection />
-                    <OurStorySection />
-                    <OurTeamSection />
-                    <FAQSection />
+                    <MintCard />
                 </main>
 
                 <footer className="footer-container px-4 pb-6 w-full max-w-screen-xl mx-auto mt-6 md:mt-16 flex items-center justify-between">
