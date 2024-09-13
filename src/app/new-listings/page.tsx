@@ -146,10 +146,6 @@ function App() {
                     <PropertyCardSection />
                 </div>
             </div>
-
-            <div className="max-w-screen-sm mx-auto my-4">
-                <MintCard />
-            </div>
             <Footer />
         </>
     );
