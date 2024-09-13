@@ -217,7 +217,7 @@ function App() {
                                         ref={inputRef}
                                         id="upload"
                                         disabled={isUploading || !account || !wallet || isAptosConnectWallet(wallet)}
-                                        webkitdirectory="true"
+                                        // webkitdirectory="true"
                                         multiple
                                         type="file"
                                         placeholder="Upload Assets"
@@ -365,7 +365,7 @@ function App() {
 
                     <ConfirmButton
                         title="Create Collection"
-                        className="self-start"
+                        className="self-start my-4"
                         onSubmit={onCreateCollection}
                         disabled={
                             !account ||
