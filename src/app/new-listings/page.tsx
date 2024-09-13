@@ -22,6 +22,7 @@ import { ConfirmButton } from "@/components/ui/confirm-button";
 // Entry functions
 import { createCollection } from "@/entry-functions/create_collection";
 import Link from "next/link";
+import Image from "next/image";
 
 function App() {
     // Wallet Adapter provider
@@ -42,6 +43,7 @@ function App() {
     const [publicMintLimitPerAccount, setPublicMintLimitPerAccount] = useState<number>(1);
     const [publicMintFeePerNFT, setPublicMintFeePerNFT] = useState<number>();
     const [files, setFiles] = useState<FileList | null>(null);
+    const [fileURLs, setFileURLs] = useState<string[] | null>(null);
 
     // Internal state
     const [isUploading, setIsUploading] = useState(false);
@@ -152,62 +154,193 @@ function App() {
                         </WarningAlert>
                     )}
 
+                    <LabeledInput
+                        id="property-name"
+                        type="text"
+                        required
+                        label="Name"
+                        tooltip="Name of the property"
+                        disabled={isUploading || !account}
+                        onChange={(e) => {
+                            setPublicMintLimitPerAccount(parseInt(e.target.value));
+                        }}
+                    />
+
+                    <LabeledInput
+                        id="property-address"
+                        required
+                        type="text"
+                        label="Address"
+                        tooltip="Property address"
+                        disabled={isUploading || !account}
+                        onChange={(e) => {
+                            setPublicMintLimitPerAccount(parseInt(e.target.value));
+                        }}
+                    />
+
+                    <LabeledInput
+                        id="property-type"
+                        required
+                        type="text"
+                        label="Property Type"
+                        tooltip="Property type (i.e., flat, condo, residential)"
+                        disabled={isUploading || !account}
+                        onChange={(e) => {
+                            setPublicMintLimitPerAccount(parseInt(e.target.value));
+                        }}
+                    />
+
                     <UploadSpinner on={isUploading} />
-
-                    <Card>
-                        <CardHeader>
-                            <CardDescription>Uploads collection files to Irys, a decentralized storage</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex flex-col items-start justify-between">
-                                {!files?.length && (
-                                    <Label
-                                        htmlFor="upload"
-                                        className={buttonVariants({
-                                            variant: "outline",
-                                            className: "cursor-pointer",
-                                        })}
-                                    >
-                                        Choose Folder to Upload
-                                    </Label>
-                                )}
-                                <Input
-                                    className="hidden"
-                                    ref={inputRef}
-                                    id="upload"
-                                    disabled={isUploading || !account || !wallet || isAptosConnectWallet(wallet)}
-                                    webkitdirectory="true"
-                                    multiple
-                                    type="file"
-                                    placeholder="Upload Assets"
-                                    onChange={(event) => {
-                                        setFiles(event.currentTarget.files);
-                                    }}
-                                />
-
-                                {!!files?.length && (
-                                    <div>
-                                        {files.length} files selected{" "}
-                                        <Button
-                                            variant="link"
-                                            className="text-destructive"
-                                            onClick={() => {
-                                                setFiles(null);
-                                                inputRef.current!.value = "";
-                                            }}
+                    <div className="flex flex-col item-center space-y-4">
+                        <Label>
+                            Images
+                        </Label>
+                        <Card>
+                            <CardHeader>
+                                <CardDescription>Uploads collection files to Irys, a decentralized storage</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex flex-col items-start justify-between">
+                                    {!files?.length && (
+                                        <Label
+                                            htmlFor="upload"
+                                            className={buttonVariants({
+                                                variant: "outline",
+                                                className: "cursor-pointer",
+                                            })}
                                         >
-                                            Clear
-                                        </Button>
-                                    </div>
-                                )}
-                            </div>
-                        </CardContent>
-                    </Card>
+                                            Choose Folder to Upload
+                                        </Label>
+                                    )}
+                                    <Input
+                                        className="hidden"
+                                        ref={inputRef}
+                                        id="upload"
+                                        disabled={isUploading || !account || !wallet || isAptosConnectWallet(wallet)}
+                                        webkitdirectory="true"
+                                        multiple
+                                        type="file"
+                                        placeholder="Upload Assets"
+                                        onChange={(event) => {
+                                            setFiles(event.currentTarget.files);
+
+                                            let file_urls: string[] = []
+                                            if (!!event.currentTarget.files) {
+                                                for (var i = 0; i < event.currentTarget.files.length; i++) {
+                                                    file_urls.push(URL.createObjectURL(event.currentTarget.files[i]));
+                                                };
+                                                setFileURLs(file_urls)
+                                            }
+                                        }}
+                                    />
+
+                                    {!!files?.length && (
+                                        <div>
+                                            {files.length} images uploaded {" "}
+                                            <Button
+                                                variant="link"
+                                                className="text-destructive"
+                                                onClick={() => {
+                                                    setFiles(null);
+                                                    inputRef.current!.value = "";
+                                                }}
+                                            >
+                                                Clear
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    <LabeledInput
+                        id="property-value"
+                        required
+                        label="Property Value in $"
+                        tooltip="Appraised Fair market value"
+                        disabled={isUploading || !account}
+                        onChange={(e) => {
+                            setPublicMintLimitPerAccount(parseInt(e.target.value));
+                        }}
+                    />
+
+                    <LabeledInput
+                        id="rental-yield"
+                        required
+                        label="Rental Yield in %"
+                        tooltip="Estimated annual rental yield"
+                        disabled={isUploading || !account}
+                        onChange={(e) => {
+                            setPreMintAmount(parseInt(e.target.value));
+                        }}
+                    />
+
+                    <LabeledInput
+                        id="target-funding"
+                        required
+                        label="Target Funding in $"
+                        tooltip="Target funding"
+                        disabled={isUploading || !account}
+                        onChange={(e) => {
+                            setPreMintAmount(parseInt(e.target.value));
+                        }}
+                    />
+
+
+
+                    <div className="flex justify-stretch item-center gap-4 mt-4">
+                        <div className="basis-1/2">
+                            <LabeledInput
+                                id="maximum-supply"
+                                required
+                                label="Maximum Token Supply"
+                                tooltip="Maximum tokens that can be minted"
+                                disabled={isUploading || !account}
+                                onChange={(e) => {
+                                    setPreMintAmount(parseInt(e.target.value));
+                                }}
+                            />
+                        </div>
+
+                        <div className="basis-1/2">
+                            <LabeledInput
+                                id="token-price"
+                                required
+                                label="Individual Token Price"
+                                tooltip="Individual token price"
+                                disabled
+                                onChange={(e) => {
+                                    setPreMintAmount(parseInt(e.target.value));
+                                }}
+                            />
+                        </div>
+                    </div>
+
+                    <LabeledInput
+                        id="mint-limit"
+                        label="Mint limit per address"
+                        tooltip="How many tokens an individual address is allowed to mint"
+                        disabled={isUploading || !account}
+                        onChange={(e) => {
+                            setPublicMintLimitPerAccount(parseInt(e.target.value));
+                        }}
+                    />
+
+                    <LabeledInput
+                        id="mint-fee"
+                        label="Mint fee in APT"
+                        tooltip="The fee the nft minter is paying the collection creator when they mint an NFT, denominated in APT"
+                        disabled={isUploading || !account}
+                        onChange={(e) => {
+                            setPublicMintFeePerNFT(Number(e.target.value));
+                        }}
+                    />
 
                     <div className="flex item-center gap-4 mt-4">
                         <DateTimeInput
                             id="mint-start"
-                            label="Public mint start date"
+                            label="Mint start date"
                             tooltip="When minting becomes active"
                             disabled={isUploading || !account}
                             date={publicMintStartDate}
@@ -219,7 +352,7 @@ function App() {
 
                         <DateTimeInput
                             id="mint-end"
-                            label="Public mint end date"
+                            label="Mint end date"
                             tooltip="When minting finishes"
                             disabled={isUploading || !account}
                             date={publicMintEndDate}
@@ -229,47 +362,6 @@ function App() {
                             className="basis-1/2"
                         />
                     </div>
-
-                    <LabeledInput
-                        id="mint-limit"
-                        required
-                        label="Mint limit per address"
-                        tooltip="How many NFTs an individual address is allowed to mint"
-                        disabled={isUploading || !account}
-                        onChange={(e) => {
-                            setPublicMintLimitPerAccount(parseInt(e.target.value));
-                        }}
-                    />
-
-                    <LabeledInput
-                        id="royalty-percentage"
-                        label="Royalty Percentage"
-                        tooltip="The percentage of trading value that collection creator gets when an NFT is sold on marketplaces"
-                        disabled={isUploading || !account}
-                        onChange={(e) => {
-                            setRoyaltyPercentage(parseInt(e.target.value));
-                        }}
-                    />
-
-                    <LabeledInput
-                        id="mint-fee"
-                        label="Mint fee per NFT in APT"
-                        tooltip="The fee the nft minter is paying the collection creator when they mint an NFT, denominated in APT"
-                        disabled={isUploading || !account}
-                        onChange={(e) => {
-                            setPublicMintFeePerNFT(Number(e.target.value));
-                        }}
-                    />
-
-                    <LabeledInput
-                        id="for-myself"
-                        label="Mint for myself"
-                        tooltip="How many NFTs to mint immediately for the creator"
-                        disabled={isUploading || !account}
-                        onChange={(e) => {
-                            setPreMintAmount(parseInt(e.target.value));
-                        }}
-                    />
 
                     <ConfirmButton
                         title="Create Collection"
@@ -296,17 +388,42 @@ function App() {
                         }
                     />
                 </div>
-                <div className="w-full md:w-1/3 order-1 md:order-2">
+                <div className="flex flex-col gap-y-4 w-full md:w-1/3 order-1 md:order-2">
                     <Card>
-                        <CardHeader className="body-md-semibold">Learn More</CardHeader>
+                        <CardHeader className="body-md-semibold">Location</CardHeader>
                         <CardContent>
                             <Link href="https://aptos.dev/standards/digital-asset" className="body-sm underline" target="_blank">
                                 Find out more about Digital Assets on Aptos
                             </Link>
                         </CardContent>
                     </Card>
+                    <Card>
+                        <CardHeader className="body-md-semibold">Images</CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
+                                {
+                                    !!fileURLs?.length && fileURLs.map((fileURL) => (
+                                        <div key={fileURL}>
+                                            <Image
+                                                className="h-auto max-w-full rounded-lg"
+                                                src={fileURL}
+                                                alt=""
+                                                width={300}
+                                                height={300}
+                                            />
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                            {
+                                !fileURLs &&
+                                <p>Uploaded images will be shown here</p>
+
+                            }
+                        </CardContent>
+                    </Card>
                 </div>
-            </div>
+            </div >
         </>
     );
 }
