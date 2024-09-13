@@ -23,6 +23,7 @@ import { ConfirmButton } from "@/components/ui/confirm-button";
 import { createCollection } from "@/entry-functions/create_collection";
 import Link from "next/link";
 import Image from "next/image";
+import { Footer } from "@/components/Footer";
 
 function App() {
   // Wallet Adapter provider
@@ -424,6 +425,7 @@ function App() {
           </Card>
         </div>
       </div >
+      <Footer />
     </>
   );
 }

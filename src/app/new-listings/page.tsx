@@ -25,6 +25,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { PropertyCardSection } from "@/components/new-listings/PropertyCardSection";
 import { MintCard } from "@/components/new-listings/MintCard";
+import { Footer } from "@/components/Footer";
 
 function App() {
     // Wallet Adapter provider
@@ -149,6 +150,7 @@ function App() {
             <div className="max-w-screen-sm mx-auto my-4">
                 <MintCard />
             </div>
+            <Footer />
         </>
     );
 }

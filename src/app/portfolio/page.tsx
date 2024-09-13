@@ -10,6 +10,7 @@ import { useGetCollections } from "@/hooks/useGetCollections";
 // Internal constants
 import { IS_PROD, NETWORK } from "@/constants";
 import Link from "next/link";
+import { Footer } from "@/components/Footer";
 
 function App() {
   const collections: Array<GetCollectionDataResponse> = useGetCollections();
@@ -65,6 +66,7 @@ function App() {
             })}
         </TableBody>
       </Table>
+      <Footer />
     </>
   );
 }

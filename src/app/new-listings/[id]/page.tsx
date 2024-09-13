@@ -25,6 +25,7 @@ import { OurStorySection } from "@/components/new-listings/OurStorySection";
 import { StatsSection } from "@/components/new-listings/StatsSection";
 import { ConnectWalletAlert } from "@/components/new-listings/ConnectWalletAlert";
 import { HeroSection } from "@/components/new-listings/HeroSection";
+import { Footer } from "@/components/Footer";
 
 export default function Page() {
     const { data, isLoading } = useGetCollectionData();
@@ -63,6 +64,7 @@ export default function Page() {
                     {/* <Socials /> */}
                 </footer>
             </div>
+            <Footer />
         </>
     );
 }
