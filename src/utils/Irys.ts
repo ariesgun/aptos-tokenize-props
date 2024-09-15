@@ -4,7 +4,7 @@ import { getAccountAPTBalance } from "@/view-functions/getAccountAPTBalance";
 import { NETWORK } from "@/constants";
 
 const getWebIrys = async (aptosWallet: WalletContextState) => {
-  const network = NETWORK === "testnet" ? "devnet" : "mainnet"; // Irys network
+  const network = NETWORK === "mainnet" ? "mainnet" : "devnet"; // Irys network
   const token = "aptos";
   const rpcUrl = NETWORK; // Aptos network "mainnet" || "testnet"
   const wallet = { rpcUrl: rpcUrl, name: "aptos", provider: aptosWallet };

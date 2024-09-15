@@ -24,6 +24,8 @@ import { createCollection } from "@/entry-functions/create_collection";
 import Link from "next/link";
 import Image from "next/image";
 import { Footer } from "@/components/Footer";
+import { createEntry } from "@/entry-functions/create_entry";
+import { uploadPropertyImages, uploadTokenMetadata } from "@/utils/assetsMetadataUploader";
 
 function App() {
   // Wallet Adapter provider
@@ -35,8 +37,14 @@ function App() {
   // if (IS_PROD) navigate("/", { replace: true });
 
   // Collection data entered by the user on UI
-  const [royaltyPercentage, setRoyaltyPercentage] = useState<number>();
-  const [preMintAmount, setPreMintAmount] = useState<number>();
+  const [propertyName, setPropertyName] = useState<string>("");
+  const [propertyAddress, setPropertyAddress] = useState<string>("");
+  const [propertyType, setPropertyType] = useState<string>("");
+  const [propertyValue, setPropertyValue] = useState<number>(0);
+  const [rentalYield, setRentalYield] = useState<number>(0);
+  const [targetFunding, setTargetFunding] = useState<number>(0);
+  const [maximumSupply, setMaximumSupply] = useState<number>(0);
+  const [preMintAmount, setPreMintAmount] = useState<number>(0);
   const [publicMintStartDate, setPublicMintStartDate] = useState<Date>();
   const [publicMintStartTime, setPublicMintStartTime] = useState<string>();
   const [publicMintEndDate, setPublicMintEndDate] = useState<Date>();
@@ -90,28 +98,46 @@ function App() {
       setIsUploading(true);
 
       // Upload collection files to Irys
-      const { collectionName, collectionDescription, maxSupply, projectUri } = await uploadCollectionData(
+      // const { collectionName, collectionDescription, maxSupply, projectUri } = await uploadCollectionData(
+      //   aptosWallet,
+      //   files,
+      // );
+
+      const { mainImageUri, imageUri } = await uploadPropertyImages(
         aptosWallet,
-        files,
-      );
+        files
+      )
+
+      const { metadataUri } = await uploadTokenMetadata(
+        aptosWallet,
+        propertyName,
+        "Represents tokenized property shares",
+        mainImageUri,
+        imageUri,
+        propertyAddress,
+        propertyType,
+        rentalYield,
+        propertyValue,
+        maximumSupply
+      )
+
+      // let metadataUri = "hello.json"
 
       // Submit a create_collection entry function transaction
+      const individualTokenPrice = targetFunding / maximumSupply
       const response = await signAndSubmitTransaction(
-        createCollection({
-          collectionDescription,
-          collectionName,
-          projectUri,
-          maxSupply,
-          royaltyPercentage,
-          preMintAmount,
-          allowList: undefined,
-          allowListStartDate: undefined,
-          allowListEndDate: undefined,
-          allowListLimitPerAccount: undefined,
-          allowListFeePerNFT: undefined,
+        createEntry({
+          propertyDescription: "Represents tokenized property shares",
+          propertyName,
+          propertySymbol: "OOOO",
+          maximumSupply,
+          entryUri: metadataUri,
+          premintAddresses: undefined,
+          preMintAmount: undefined,
           publicMintStartDate,
           publicMintEndDate,
           publicMintLimitPerAccount,
+          individualTokenPrice,
           publicMintFeePerNFT,
         }),
       );
@@ -163,7 +189,7 @@ function App() {
             tooltip="Name of the property"
             disabled={isUploading || !account}
             onChange={(e) => {
-              setPublicMintLimitPerAccount(parseInt(e.target.value));
+              setPropertyName(e.target.value);
             }}
           />
 
@@ -175,7 +201,7 @@ function App() {
             tooltip="Property address"
             disabled={isUploading || !account}
             onChange={(e) => {
-              setPublicMintLimitPerAccount(parseInt(e.target.value));
+              setPropertyAddress(e.target.value);
             }}
           />
 
@@ -187,7 +213,7 @@ function App() {
             tooltip="Property type (i.e., flat, condo, residential)"
             disabled={isUploading || !account}
             onChange={(e) => {
-              setPublicMintLimitPerAccount(parseInt(e.target.value));
+              setPropertyType(e.target.value);
             }}
           />
 
@@ -218,7 +244,7 @@ function App() {
                     ref={inputRef}
                     id="upload"
                     disabled={isUploading || !account || !wallet || isAptosConnectWallet(wallet)}
-                    // webkitdirectory="true"
+                    webkitdirectory="true"
                     multiple
                     type="file"
                     placeholder="Upload Assets"
@@ -262,7 +288,7 @@ function App() {
             tooltip="Appraised Fair market value"
             disabled={isUploading || !account}
             onChange={(e) => {
-              setPublicMintLimitPerAccount(parseInt(e.target.value));
+              setPropertyValue(parseInt(e.target.value));
             }}
           />
 
@@ -273,7 +299,7 @@ function App() {
             tooltip="Estimated annual rental yield"
             disabled={isUploading || !account}
             onChange={(e) => {
-              setPreMintAmount(parseInt(e.target.value));
+              setRentalYield(parseInt(e.target.value));
             }}
           />
 
@@ -284,11 +310,9 @@ function App() {
             tooltip="Target funding"
             disabled={isUploading || !account}
             onChange={(e) => {
-              setPreMintAmount(parseInt(e.target.value));
+              setTargetFunding(parseInt(e.target.value));
             }}
           />
-
-
 
           <div className="flex justify-stretch item-center gap-4 mt-4">
             <div className="basis-1/2">
@@ -299,7 +323,7 @@ function App() {
                 tooltip="Maximum tokens that can be minted"
                 disabled={isUploading || !account}
                 onChange={(e) => {
-                  setPreMintAmount(parseInt(e.target.value));
+                  setMaximumSupply(parseInt(e.target.value));
                 }}
               />
             </div>
@@ -307,13 +331,11 @@ function App() {
             <div className="basis-1/2">
               <LabeledInput
                 id="token-price"
-                required
                 label="Individual Token Price"
                 tooltip="Individual token price"
                 disabled
-                onChange={(e) => {
-                  setPreMintAmount(parseInt(e.target.value));
-                }}
+                value={maximumSupply > 0 ? targetFunding / maximumSupply : 0}
+                onChange={(e) => { }}
               />
             </div>
           </div>
@@ -368,14 +390,14 @@ function App() {
             title="Create Collection"
             className="self-start"
             onSubmit={onCreateCollection}
-            disabled={
-              !account ||
-              !files?.length ||
-              !publicMintStartDate ||
-              !publicMintLimitPerAccount ||
-              !account ||
-              isUploading
-            }
+            // disabled={
+            //   !account ||
+            //   !files?.length ||
+            //   !publicMintStartDate ||
+            //   !publicMintLimitPerAccount ||
+            //   !account ||
+            //   isUploading
+            // }
             confirmMessage={
               <>
                 <p>The upload process requires at least 2 message signatures</p>
