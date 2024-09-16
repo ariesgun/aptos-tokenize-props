@@ -7,23 +7,52 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useQueryClient } from "@tanstack/react-query";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { clampNumber } from "@/utils/clampNumber";
 import { Separator } from "../ui/separator";
+import { useGetTokenData } from "@/hooks/useGetTokensOfCollection";
 
-export function MintCard(
+interface MintCardProps {
+    tokenId: string | undefined;
+    propertyName: string | undefined;
+    propertyAddress: string | undefined;
+    propertyDescription: string | undefined;
+    propertyMetadata: any;
+}
 
-) {
+
+export const MintCard: React.FC<MintCardProps> = ({
+    tokenId,
+    propertyName,
+    propertyAddress,
+    propertyDescription,
+    propertyMetadata,
+}) => {
     // const { data } = useGetCollectionData();
+    const { data, isLoading } = useGetTokenData(tokenId!);
     const queryClient = useQueryClient();
     const { account, signAndSubmitTransaction } = useWallet();
     const [nftCount, setNftCount] = useState(1);
 
     // const { userMintBalance = 0, collection, totalMinted = 0, maxSupply = 1 } = data ?? {};
     let userMintBalance = 0;
-    let totalMinted = 0;
-    let maxSupply = 1;
-    const mintUpTo = Math.min(userMintBalance, maxSupply - totalMinted);
+    let totalMinted = data?.amount_v2
+    let maxSupply = propertyMetadata?.properties?.maximum_supply;
+    const mintUpTo = maxSupply - totalMinted;
+
+    useEffect(() => {
+        queryClient.invalidateQueries();
+    }, [account, queryClient]);
+
+    if (isLoading) {
+        return (
+            <div className="text-center p-8">
+                <h1 className="title-md">Loading...</h1>
+            </div>
+        );
+    }
+
+    console.log("Meta..", tokenId, data)
 
     return (
         <section className="px-4 text-center max-w-screen-md mx-auto w-full">
@@ -62,15 +91,15 @@ export function MintCard(
                     <div className="flex flex-row gap-8 w-full md:basis-1/3 mb-4">
                         <div className="flex flex-col gap-4 w-full items-center border border-indigo-800 rounded-lg py-4 shadow-md">
                             <p className="text-base font-bold text-center">Maximum Tokens</p>
-                            <p className="text-base font-normal text-secondary-text">14000</p>
+                            <p className="text-base font-normal text-secondary-text">{maxSupply}</p>
                         </div>
                         <div className="flex flex-col gap-4 w-full items-center border border-indigo-800 rounded-lg py-4 shadow-md">
                             <p className="text-base font-bold text-center">Minted Tokens</p>
-                            <p className="text-base font-normal text-secondary-text">10000</p>
+                            <p className="text-base font-normal text-secondary-text">{totalMinted}</p>
                         </div>
                         <div className="flex flex-col gap-4 w-full items-center border border-indigo-800 rounded-lg py-4 shadow-md">
                             <p className="text-base font-bold text-center">Available Tokens</p>
-                            <p className="text-base font-normal text-secondary-text">4000</p>
+                            <p className="text-base font-normal text-secondary-text">{maxSupply - totalMinted}</p>
                         </div>
                     </div>
                     <div className="flex flex-row gap-2 w-full justify-between items-center">
@@ -81,7 +110,7 @@ export function MintCard(
                             <Progress value={(totalMinted / maxSupply) * 100} className="h-2" />
                         </div>
                         <div className="flex-none mx-4 py-4 text-2xl font-bold">
-                            <p>80 %</p>
+                            <p>{((totalMinted / maxSupply) * 100).toFixed(2)} %</p>
                         </div>
                     </div>
 

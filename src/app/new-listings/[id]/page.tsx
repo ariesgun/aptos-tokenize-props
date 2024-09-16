@@ -2,7 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // import { BannerSection } from "@/pages/Mint/components/BannerSection";
 // import { HeroSection } from "@/pages/Mint/components/HeroSection";
@@ -27,20 +27,50 @@ import { ConnectWalletAlert } from "@/components/new-listings/ConnectWalletAlert
 import { HeroSection } from "@/components/new-listings/HeroSection";
 import { Footer } from "@/components/Footer";
 import { MintCard } from "@/components/new-listings/MintCard";
+import { useGetTokenData, useGetTokensOfCollection } from "@/hooks/useGetTokensOfCollection";
+import { PropertyHeroSection } from "@/components/new-listings/PropertyHeroSection";
+import { config } from "@/config";
+import { getListings } from "@/view-functions/getListings";
+import { useGetListings } from "@/hooks/useGetListings";
 
 export default function Page({ params }: { params: { id: string } }) {
+
+    const listings: Array<any> = useGetListings();
+    console.log("lllll", listings)
 
     const queryClient = useQueryClient();
     const { account } = useWallet();
 
-    const { data, isLoading } = useGetCollectionData();
+    const { data, isLoading } = useGetTokensOfCollection();
 
-
-    console.log("aaa", data)
+    const [tokenData, setTokenData] = useState<any>();
+    const [tokenMetadata, setTokenMetadata] = useState<any>();
 
     useEffect(() => {
         queryClient.invalidateQueries();
     }, [account, queryClient]);
+
+    useEffect(() => {
+        const filteredData = data?.tokens.filter((el) => el.token_data_id === params.id)
+        if (filteredData && filteredData?.length > 0) {
+            setTokenData(filteredData[0])
+        }
+    }, [data]);
+
+    useEffect(() => {
+        console.log("aa", tokenData)
+        try {
+            fetch(tokenData?.token_uri)
+                .then((res) => {
+                    res.json().then((res_json) => {
+                        setTokenMetadata(res_json)
+                    })
+                })
+        } catch (e) {
+            console.warn(e);
+        }
+        getListings();
+    }, [tokenData])
 
     if (isLoading) {
         return (
@@ -56,14 +86,22 @@ export default function Page({ params }: { params: { id: string } }) {
             <div style={{ overflow: "hidden" }} className="overflow-hidden">
                 <main className="flex flex-col gap-10 md:gap-16 mt-6 max-w-screen-lg mx-auto">
                     <ConnectWalletAlert />
-                    <HeroSection />
-                    <MintCard />
+                    <PropertyHeroSection
+                        tokenId={tokenData?.token_data_id}
+                        propertyName={tokenData?.token_name ?? config.defaultCollection?.name}
+                        propertyAddress="The address"
+                        propertyDescription="The description"
+                        propertyMetadata={tokenMetadata}
+                    />
+                    <MintCard
+                        tokenId={tokenData?.token_data_id}
+                        propertyName={tokenData?.token_name ?? config.defaultCollection?.name}
+                        propertyAddress="The address"
+                        propertyDescription="The description"
+                        propertyMetadata={tokenMetadata}
+                    />
                 </main>
 
-                <footer className="footer-container px-4 pb-6 w-full max-w-screen-xl mx-auto mt-6 md:mt-16 flex items-center justify-between">
-                    <p>{data?.collection.collection_name}</p>
-                    {/* <Socials /> */}
-                </footer>
             </div>
             <Footer />
         </>

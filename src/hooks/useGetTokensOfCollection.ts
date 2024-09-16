@@ -11,6 +11,7 @@ import { getMintEnabled } from "@/view-functions/getMintEnabled";
 export interface Token {
     token_name: string;
     token_data_id: string;
+    token_uri: string;
 }
 
 export interface Collection {
@@ -30,6 +31,9 @@ export interface Collection {
 interface MintQueryResult {
     current_token_datas_v2: Array<Token>;
 }
+interface TokenQueryResult {
+    current_fungible_asset_balances: Array<any>;
+}
 
 interface MintData {
     maxSupply: number;
@@ -46,7 +50,7 @@ interface MintData {
 export function useGetTokensOfCollection(collection_address: string = COLLECTION_ADDRESS) {
 
     return useQuery({
-        queryKey: ["token-data", collection_address],
+        queryKey: ["tokens-data", collection_address],
         refetchInterval: 1000 * 30,
         queryFn: async () => {
             try {
@@ -95,6 +99,56 @@ export function useGetTokensOfCollection(collection_address: string = COLLECTION
                 return {
                     tokens
                 };
+            } catch (error) {
+                console.error("Error", error);
+                return null;
+            }
+        },
+    });
+}
+
+export function useGetTokenData(token_address: string) {
+
+    return useQuery({
+        queryKey: ["token-data", token_address],
+        refetchInterval: 1000 * 30,
+        queryFn: async () => {
+            try {
+                if (!token_address) return null;
+
+                const res = await aptosClient().queryIndexer<TokenQueryResult>({
+                    query: {
+                        variables: {
+                            token_id: token_address,
+                        },
+                        query: `
+						query PropsTokenQuery($token_id: String) {
+							current_fungible_asset_balances(
+                                where: { asset_type_v2: { _eq: $token_id } }
+                            ) {
+                                amount_v2
+                                asset_type_v2
+                                metadata {
+                                    icon_uri
+                                    maximum_v2
+                                    project_uri
+                                    supply_aggregator_table_handle_v1
+                                    supply_aggregator_table_key_v1
+                                    supply_v2
+                                    symbol
+                                    token_standard
+                                }
+                                owner_address
+							}
+						}`,
+                    },
+                });
+
+                const tokens = res.current_fungible_asset_balances;
+                if (!tokens) return null;
+
+                return tokens[0]
+
                 // return {
                 //     maxSupply: collection.max_supply ?? 0,
                 //     totalMinted: collection.current_supply ?? 0,
