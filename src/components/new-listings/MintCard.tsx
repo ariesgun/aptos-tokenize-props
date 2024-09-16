@@ -8,19 +8,21 @@ import { Progress } from "@/components/ui/progress";
 import { useQueryClient } from "@tanstack/react-query";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { useState } from "react";
-import { useGetCollectionData } from "@/hooks/useGetCollectionData";
 import { clampNumber } from "@/utils/clampNumber";
 import { Separator } from "../ui/separator";
 
 export function MintCard(
 
 ) {
-    const { data } = useGetCollectionData();
+    // const { data } = useGetCollectionData();
     const queryClient = useQueryClient();
     const { account, signAndSubmitTransaction } = useWallet();
     const [nftCount, setNftCount] = useState(1);
 
-    const { userMintBalance = 0, collection, totalMinted = 0, maxSupply = 1 } = data ?? {};
+    // const { userMintBalance = 0, collection, totalMinted = 0, maxSupply = 1 } = data ?? {};
+    let userMintBalance = 0;
+    let totalMinted = 0;
+    let maxSupply = 1;
     const mintUpTo = Math.min(userMintBalance, maxSupply - totalMinted);
 
     return (
@@ -93,7 +95,7 @@ export function MintCard(
                     <form className="flex flex-col gap-4 w-full md:basis-1/4">
                         <Input
                             type="number"
-                            disabled={!data?.isMintActive}
+                            // disabled={!data?.isMintActive}
                             value={nftCount}
                             onChange={(e) => setNftCount(parseInt(e.currentTarget.value, 10))}
                         />
@@ -107,7 +109,11 @@ export function MintCard(
                                 <p>$ 4000</p>
                             </div>
                         </div>
-                        <Button className="h-16 md:h-auto" type="submit" disabled={!data?.isMintActive}>
+                        <Button
+                            className="h-16 md:h-auto"
+                            type="submit"
+                        // disabled={!data?.isMintActive}
+                        >
                             Mint
                         </Button>
                     </form>

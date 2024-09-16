@@ -104,48 +104,60 @@ export function useGetCollectionData(collection_address: string = COLLECTION_ADD
         const collection = res.current_collections_v2[0];
         if (!collection) return null;
 
-        const mintStageRes = await getActiveOrNextMintStage({ collection_address });
-        // Only return collection data if no mint stage is found
-        if (mintStageRes.length === 0) {
-          return {
-            maxSupply: collection.max_supply ?? 0,
-            totalMinted: collection.current_supply ?? 0,
-            uniqueHolders: res.current_collection_ownership_v2_view_aggregate.aggregate?.count ?? 0,
-            userMintBalance: 0,
-            collection,
-            endDate: new Date(),
-            startDate: new Date(),
-            isMintActive: false,
-            isMintInfinite: false,
-          } satisfies MintData;
-        }
-
-        const mint_stage = mintStageRes[0];
-        const { startDate, endDate, isMintInfinite } = await getMintStageStartAndEndTime({
-          collection_address,
-          mint_stage,
-        });
-        const userMintBalance =
-          account == null
-            ? 0
-            : await getUserMintBalance({ user_address: account.address, collection_address, mint_stage });
-        const isMintEnabled = await getMintEnabled({ collection_address });
-
         return {
           maxSupply: collection.max_supply ?? 0,
           totalMinted: collection.current_supply ?? 0,
           uniqueHolders: res.current_collection_ownership_v2_view_aggregate.aggregate?.count ?? 0,
-          userMintBalance,
+          userMintBalance: 0,
           collection,
-          endDate,
-          startDate,
-          isMintActive:
-            isMintEnabled &&
-            new Date() >= startDate &&
-            new Date() <= endDate &&
-            collection.max_supply > collection.current_supply,
-          isMintInfinite,
+          endDate: new Date(),
+          startDate: new Date(),
+          isMintActive: false,
+          isMintInfinite: false,
         } satisfies MintData;
+
+        // const mintStageRes = await getActiveOrNextMintStage({ collection_address });
+        // // Only return collection data if no mint stage is found
+        // if (mintStageRes.length === 0) {
+        //   return {
+        //     maxSupply: collection.max_supply ?? 0,
+        //     totalMinted: collection.current_supply ?? 0,
+        //     uniqueHolders: res.current_collection_ownership_v2_view_aggregate.aggregate?.count ?? 0,
+        //     userMintBalance: 0,
+        //     collection,
+        //     endDate: new Date(),
+        //     startDate: new Date(),
+        //     isMintActive: false,
+        //     isMintInfinite: false,
+        //   } satisfies MintData;
+        // }
+
+        // const mint_stage = mintStageRes[0];
+        // const { startDate, endDate, isMintInfinite } = await getMintStageStartAndEndTime({
+        //   collection_address,
+        //   mint_stage,
+        // });
+        // const userMintBalance =
+        //   account == null
+        //     ? 0
+        //     : await getUserMintBalance({ user_address: account.address, collection_address, mint_stage });
+        // const isMintEnabled = await getMintEnabled({ collection_address });
+
+        // return {
+        //   maxSupply: collection.max_supply ?? 0,
+        //   totalMinted: collection.current_supply ?? 0,
+        //   uniqueHolders: res.current_collection_ownership_v2_view_aggregate.aggregate?.count ?? 0,
+        //   userMintBalance,
+        //   collection,
+        //   endDate,
+        //   startDate,
+        //   isMintActive:
+        //     isMintEnabled &&
+        //     new Date() >= startDate &&
+        //     new Date() <= endDate &&
+        //     collection.max_supply > collection.current_supply,
+        //   isMintInfinite,
+        // } satisfies MintData;
       } catch (error) {
         console.error(error);
         return null;

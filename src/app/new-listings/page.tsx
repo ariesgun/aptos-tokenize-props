@@ -1,7 +1,7 @@
 "use client"
 
 // External packages
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { isAptosConnectWallet, useWallet } from "@aptos-labs/wallet-adapter-react";
 // import { Link, useNavigate } from "react-router-dom";
 // Internal utils
@@ -27,112 +27,28 @@ import { PropertyCardSection } from "@/components/new-listings/PropertyCardSecti
 import { MintCard } from "@/components/new-listings/MintCard";
 import { Footer } from "@/components/Footer";
 
+import { useGetTokensOfCollection } from "@/hooks/useGetTokensOfCollection";
+import { useQueryClient } from "@tanstack/react-query";
+
 function App() {
-    // Wallet Adapter provider
-    const aptosWallet = useWallet();
-    const { account, wallet, signAndSubmitTransaction } = useWallet();
 
-    // If we are on Production mode, redierct to the public mint page
-    // const navigate = useNavigate();
-    // if (IS_PROD) navigate("/", { replace: true });
+    const { data, isLoading } = useGetTokensOfCollection();
+    console.log("data", data)
 
-    // Collection data entered by the user on UI
-    const [royaltyPercentage, setRoyaltyPercentage] = useState<number>();
-    const [preMintAmount, setPreMintAmount] = useState<number>();
-    const [publicMintStartDate, setPublicMintStartDate] = useState<Date>();
-    const [publicMintStartTime, setPublicMintStartTime] = useState<string>();
-    const [publicMintEndDate, setPublicMintEndDate] = useState<Date>();
-    const [publicMintEndTime, setPublicMintEndTime] = useState<string>();
-    const [publicMintLimitPerAccount, setPublicMintLimitPerAccount] = useState<number>(1);
-    const [publicMintFeePerNFT, setPublicMintFeePerNFT] = useState<number>();
-    const [files, setFiles] = useState<FileList | null>(null);
-    const [fileURLs, setFileURLs] = useState<string[] | null>(null);
+    const queryClient = useQueryClient();
+    const { account } = useWallet();
 
-    // Internal state
-    const [isUploading, setIsUploading] = useState(false);
+    useEffect(() => {
+        queryClient.invalidateQueries();
+    }, [account, queryClient]);
 
-    // Local Ref
-    const inputRef = useRef<HTMLInputElement>(null);
-
-    // On publish mint start date selected
-    const onPublicMintStartTime = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const timeValue = event.target.value;
-        setPublicMintStartTime(timeValue);
-
-        const [hours, minutes] = timeValue.split(":").map(Number);
-
-        publicMintStartDate?.setHours(hours);
-        publicMintStartDate?.setMinutes(minutes);
-        publicMintStartDate?.setSeconds(0);
-        setPublicMintStartDate(publicMintStartDate);
-    };
-
-    // On publish mint end date selected
-    const onPublicMintEndTime = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const timeValue = event.target.value;
-        setPublicMintEndTime(timeValue);
-
-        const [hours, minutes] = timeValue.split(":").map(Number);
-
-        publicMintEndDate?.setHours(hours);
-        publicMintEndDate?.setMinutes(minutes);
-        publicMintEndDate?.setSeconds(0);
-        setPublicMintEndDate(publicMintEndDate);
-    };
-
-    // On create collection button clicked
-    const onCreateCollection = async () => {
-        try {
-            if (!account) throw new Error("Please connect your wallet");
-            if (!files) throw new Error("Please upload files");
-            if (account.address !== CREATOR_ADDRESS) throw new Error("Wrong account");
-            if (isUploading) throw new Error("Uploading in progress");
-
-            // Set internal isUploading state
-            setIsUploading(true);
-
-            // Upload collection files to Irys
-            const { collectionName, collectionDescription, maxSupply, projectUri } = await uploadCollectionData(
-                aptosWallet,
-                files,
-            );
-
-            // Submit a create_collection entry function transaction
-            const response = await signAndSubmitTransaction(
-                createCollection({
-                    collectionDescription,
-                    collectionName,
-                    projectUri,
-                    maxSupply,
-                    royaltyPercentage,
-                    preMintAmount,
-                    allowList: undefined,
-                    allowListStartDate: undefined,
-                    allowListEndDate: undefined,
-                    allowListLimitPerAccount: undefined,
-                    allowListFeePerNFT: undefined,
-                    publicMintStartDate,
-                    publicMintEndDate,
-                    publicMintLimitPerAccount,
-                    publicMintFeePerNFT,
-                }),
-            );
-
-            // Wait for the transaction to be commited to chain
-            const committedTransactionResponse = await aptosClient().waitForTransaction({
-                transactionHash: response.hash,
-            });
-
-            // Once the transaction has been successfully commited to chain, navigate to the `my-collection` page
-            if (committedTransactionResponse.success) {
-                // navigate(`/my-collections`, { replace: true });
-            }
-        } catch (error) {
-            alert(error);
-        } finally {
-            setIsUploading(false);
-        }
-    };
+    if (isLoading) {
+        return (
+            <div className="text-center p-8">
+                <h1 className="title-md">Loading...</h1>
+            </div>
+        );
+    }
 
     return (
         <>
@@ -140,10 +56,15 @@ function App() {
 
             <div className="max-w-screen-xl mx-auto w-full my-4">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-8 px-4">
-                    <PropertyCardSection />
-                    <PropertyCardSection />
-                    <PropertyCardSection />
-                    <PropertyCardSection />
+                    {
+                        data?.tokens && data?.tokens.length > 0 && data?.tokens.map((el) => (
+                            <div key={el.token_data_id}>
+                                <PropertyCardSection
+                                    token_data_id={el.token_data_id}
+                                />
+                            </div>
+                        ))
+                    }
                 </div>
             </div>
             <Footer />

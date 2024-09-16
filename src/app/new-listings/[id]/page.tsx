@@ -28,11 +28,16 @@ import { HeroSection } from "@/components/new-listings/HeroSection";
 import { Footer } from "@/components/Footer";
 import { MintCard } from "@/components/new-listings/MintCard";
 
-export default function Page() {
-    const { data, isLoading } = useGetCollectionData();
+export default function Page({ params }: { params: { id: string } }) {
 
     const queryClient = useQueryClient();
     const { account } = useWallet();
+
+    const { data, isLoading } = useGetCollectionData();
+
+
+    console.log("aaa", data)
+
     useEffect(() => {
         queryClient.invalidateQueries();
     }, [account, queryClient]);

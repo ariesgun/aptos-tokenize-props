@@ -8,20 +8,26 @@ import { Progress } from "@/components/ui/progress";
 import { useQueryClient } from "@tanstack/react-query";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { useState } from "react";
-import { useGetCollectionData } from "@/hooks/useGetCollectionData";
+// import { useGetCollectionData } from "@/hooks/useGetCollectionData";
 import { clampNumber } from "@/utils/clampNumber";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 
-export function PropertyCardSection(
 
-) {
-    const { data } = useGetCollectionData();
+export interface PropertyCardSectionProps {
+    token_data_id: string;
+}
+
+export function PropertyCardSection({ token_data_id }: PropertyCardSectionProps) {
+    // const { data } = useGetCollectionData();
     const queryClient = useQueryClient();
     const { account, signAndSubmitTransaction } = useWallet();
     const [nftCount, setNftCount] = useState(1);
 
-    const { userMintBalance = 0, collection, totalMinted = 35, maxSupply = 100 } = data ?? {};
+    // const { userMintBalance = 0, collection, totalMinted = 35, maxSupply = 100 } = data ?? {};
+    let totalMinted = 35;
+    let maxSupply = 100;
+    let userMintBalance = 0;
     const mintUpTo = Math.min(userMintBalance, maxSupply - totalMinted);
 
     return (
@@ -66,7 +72,7 @@ export function PropertyCardSection(
                             </p>
                             <Progress value={(totalMinted / maxSupply) * 100} className="h-2" />
                         </div>
-                        <Link href={`/new-listings/${1}`}>
+                        <Link href={`/new-listings/${token_data_id}`}>
                             <Button className="w-full my-8 py-6 mb-0">
                                 <p className="text-md">See Details ➡️</p>
                             </Button>
