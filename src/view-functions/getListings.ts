@@ -8,6 +8,5 @@ export const getListings = async () => {
             function: `${AccountAddress.from(MODULE_ADDRESS!)}::controller::get_all_listings`,
         },
     });
-    console.log("Listing", registry)
     return registry[0];
 };

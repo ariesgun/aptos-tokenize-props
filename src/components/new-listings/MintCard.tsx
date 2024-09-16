@@ -7,10 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useQueryClient } from "@tanstack/react-query";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { clampNumber } from "@/utils/clampNumber";
 import { Separator } from "../ui/separator";
 import { useGetTokenData } from "@/hooks/useGetTokensOfCollection";
+import { buyShares } from "@/entry-functions/buy_shares";
+import { aptosClient } from "@/utils/aptosClient";
 
 interface MintCardProps {
     tokenId: string | undefined;
@@ -18,6 +20,7 @@ interface MintCardProps {
     propertyAddress: string | undefined;
     propertyDescription: string | undefined;
     propertyMetadata: any;
+    listingInfo: any;
 }
 
 
@@ -27,6 +30,7 @@ export const MintCard: React.FC<MintCardProps> = ({
     propertyAddress,
     propertyDescription,
     propertyMetadata,
+    listingInfo,
 }) => {
     // const { data } = useGetCollectionData();
     const { data, isLoading } = useGetTokenData(tokenId!);
@@ -36,7 +40,7 @@ export const MintCard: React.FC<MintCardProps> = ({
 
     // const { userMintBalance = 0, collection, totalMinted = 0, maxSupply = 1 } = data ?? {};
     let userMintBalance = 0;
-    let totalMinted = data?.amount_v2
+    let totalMinted = data?.amount_v2 ?? 0
     let maxSupply = propertyMetadata?.properties?.maximum_supply;
     const mintUpTo = maxSupply - totalMinted;
 
@@ -52,7 +56,17 @@ export const MintCard: React.FC<MintCardProps> = ({
         );
     }
 
-    console.log("Meta..", tokenId, data)
+    const mintToken = async (e: FormEvent) => {
+        e.preventDefault();
+        if (!account) return;
+        if (!listingInfo) return;
+
+        const response = await signAndSubmitTransaction(
+            buyShares({ listingInfo: listingInfo.address, amount: nftCount }),
+        );
+        await aptosClient().waitForTransaction({ transactionHash: response.hash });
+        queryClient.invalidateQueries();
+    };
 
     return (
         <section className="px-4 text-center max-w-screen-md mx-auto w-full">
@@ -72,7 +86,7 @@ export const MintCard: React.FC<MintCardProps> = ({
                         </div>
                         <div className="flex-none mx-4 text-2xl">
                             <p className="text-base">
-                                $ 200000
+                                $ {listingInfo?.funding_target}
                             </p>
                         </div>
                     </div>
@@ -84,7 +98,7 @@ export const MintCard: React.FC<MintCardProps> = ({
                         </div>
                         <div className="flex-none mx-4 text-2xl">
                             <p className="text-base">
-                                $ 100
+                                $ {listingInfo?.token_price}
                             </p>
                         </div>
                     </div>
@@ -121,7 +135,7 @@ export const MintCard: React.FC<MintCardProps> = ({
                         <p className="body-md">{mintUpTo > 1 ? `${mintUpTo} NFTs` : `${mintUpTo} tokens`}</p>
                     </div>
 
-                    <form className="flex flex-col gap-4 w-full md:basis-1/4">
+                    <form onSubmit={mintToken} className="flex flex-col gap-4 w-full md:basis-1/4">
                         <Input
                             type="number"
                             // disabled={!data?.isMintActive}
@@ -135,7 +149,7 @@ export const MintCard: React.FC<MintCardProps> = ({
                                 </p>
                             </div>
                             <div className="flex-none mx-4 py-4 text-xl font-bold">
-                                <p>$ 4000</p>
+                                <p>$ {nftCount * listingInfo?.token_price}</p>
                             </div>
                         </div>
                         <Button

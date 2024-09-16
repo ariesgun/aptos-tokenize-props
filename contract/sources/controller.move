@@ -2,10 +2,10 @@ module property_test::controller {
 
     use aptos_framework::aptos_account;
     use aptos_framework::aptos_coin::AptosCoin;
-    use aptos_framework::coin::{Self, Coin};
+    use aptos_framework::coin;
     use aptos_framework::fungible_asset::{Self, Metadata};
     use aptos_framework::object::{Self, Object, ExtendRef};
-    use aptos_framework::primary_fungible_store;
+    // use aptos_framework::primary_fungible_store;
     // use aptos_framework::dispatchable_fungible_asset;
     // use aptos_framework::function_info;
 
@@ -18,9 +18,9 @@ module property_test::controller {
 
     use std::error;
     use std::signer;
-    use std::string::{Self, utf8};
-    use std::string_utils::to_string;
-    use std::vector::{Self, append};
+    use std::string::{utf8};
+    // use std::string_utils::to_string;
+    use std::vector::{Self};
 
     use std::string::String;
     use std::option::{Self, Option};
@@ -79,9 +79,14 @@ module property_test::controller {
 
     #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
     struct ListingInfo has key {
-        // status: Status,
+        status: u8,
+        start_date: u64,
+        end_date: u64,
+        funding_target: u128,
+        token_price: u64,
         ownership_token: Object<Metadata>,
         reward_pool: Object<RewardsPool>,
+        minting_fee: u64,
     }
 
     // Property Name
@@ -131,13 +136,14 @@ module property_test::controller {
         symbol: String,
         maximum_supply: u128,
         entry_uri: String,
-        premint_addresses: Option<vector<address>>,
-        premint_amount: Option<vector<u64>>,
-        public_mint_start_time: Option<u64>,
-        public_mint_end_time: Option<u64>,
-        public_mint_limit_per_addr: Option<u64>,
+        icon_uri: String,
+        _premint_addresses: Option<vector<address>>,
+        _premint_amount: Option<vector<u64>>,
+        public_mint_start_time: u64,
+        public_mint_end_time: u64,
+        _public_mint_limit_per_addr: Option<u64>,
         individual_token_price: u64,
-        public_mint_fee: Option<u64>,
+        public_mint_fee: u64,
     ) acquires Registry, Roles {
         // Only an admin can issue a new token.
         assert_is_admin(admin);
@@ -149,9 +155,11 @@ module property_test::controller {
         let ft_constructor_ref = ownership_token::create_ownership_token(
             name,
             symbol,
+            0 as u8,
             maximum_supply,
             description,
             entry_uri,
+            icon_uri,
         );
 
         let metadata = object::object_from_constructor_ref<Metadata>(&ft_constructor_ref);
@@ -165,9 +173,14 @@ module property_test::controller {
         move_to(
             &listing_owner_signer,
             ListingInfo {
-                // status: Status::Initial,
+                status: 1,
+                start_date: public_mint_start_time,
+                end_date: public_mint_end_time,
+                funding_target: maximum_supply * (individual_token_price as u128),
+                token_price: individual_token_price,
                 ownership_token: metadata,
                 reward_pool: reward_pool_obj,
+                minting_fee: public_mint_fee,
             }
         );
 
@@ -199,7 +212,7 @@ module property_test::controller {
 
         // Check if the listing is still active or not.
         let listing_status = borrow_global<ListingInfo>(object::object_address(&token_object));
-        // assert!(listing_status.status == Status::OnProgress, error::invalid_state(11));
+        assert!(listing_status.status == 1, error::invalid_state(11));
 
         // Transfer token to this contract? (APT or USDC). amount * UNIT_PRICE
         let usdc_amount = 100;
@@ -221,7 +234,7 @@ module property_test::controller {
         let listing_status: &mut ListingInfo = borrow_global_mut<ListingInfo>(
             object::object_address(&listing)
         );
-        // listing_status.status = Status::Done;
+        listing_status.status = 3;
     }
 
     // open sale
@@ -233,7 +246,7 @@ module property_test::controller {
         let listing_status: &mut ListingInfo = borrow_global_mut<ListingInfo>(
             object::object_address(&listing)
         );
-        // listing_status.status = Status::OnProgress;
+        listing_status.status = 1;
     }
 
     // pause sale
@@ -245,7 +258,7 @@ module property_test::controller {
         let listing_status: &mut ListingInfo = borrow_global_mut<ListingInfo>(
             object::object_address(&listing)
         );
-        // listing_status.status = Status::Paused;
+        listing_status.status = 2;
     }
 
     #[view]
@@ -275,6 +288,21 @@ module property_test::controller {
     public fun get_all_listings() : vector<Object<ListingInfo>> acquires Registry {
         let registry: &mut Registry = borrow_global_mut<Registry>(get_app_signer_addres());
         registry.listings
+    }
+
+    #[view]
+    public fun get_listing_info(listing: Object<ListingInfo>): (u8, u64, u64, u128, u64, u64, address, address) acquires ListingInfo {
+        let listing_info: &ListingInfo = borrow_global<ListingInfo>(object::object_address(&listing));
+        (
+            listing_info.status,
+            listing_info.start_date,
+            listing_info.end_date,
+            listing_info.funding_target,
+            listing_info.token_price,
+            listing_info.minting_fee,
+            object::object_address(&listing_info.ownership_token),
+            object::object_address(&listing_info.reward_pool)
+        )
     }
 
 

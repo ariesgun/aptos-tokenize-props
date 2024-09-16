@@ -29,14 +29,16 @@ import { Footer } from "@/components/Footer";
 
 import { useGetTokensOfCollection } from "@/hooks/useGetTokensOfCollection";
 import { useQueryClient } from "@tanstack/react-query";
+import { useGetListings } from "@/hooks/useGetListings";
 
 function App() {
 
     const { data, isLoading } = useGetTokensOfCollection();
-    console.log("data", data)
 
     const queryClient = useQueryClient();
     const { account } = useWallet();
+
+    const listings = useGetListings();
 
     useEffect(() => {
         queryClient.invalidateQueries();
@@ -55,15 +57,19 @@ function App() {
             <Header />
 
             <div className="max-w-screen-xl mx-auto w-full my-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-8 px-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-8 px-8">
                     {
-                        data?.tokens && data?.tokens.length > 0 && data?.tokens.map((el) => (
-                            <div key={el.token_data_id}>
-                                <PropertyCardSection
-                                    token_data_id={el.token_data_id}
-                                />
-                            </div>
-                        ))
+                        data?.tokens && data?.tokens.length > 0 && data?.tokens.map((el) => {
+                            const listing_info = listings.find((listing_el) => listing_el.ownership_token === el.token_data_id)
+                            return (
+                                <div key={el?.token_data_id}>
+                                    <PropertyCardSection
+                                        token_data={el}
+                                        listing_info={listing_info}
+                                    />
+                                </div>
+                            )
+                        })
                     }
                 </div>
             </div>

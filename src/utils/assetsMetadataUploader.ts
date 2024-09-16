@@ -69,7 +69,6 @@ export const uploadPropertyImages = async (
             imageFolderReceipt = await uploadFolder(aptosWallet, [...imageFiles]);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
-            console.log(imageFolderReceipt)
             return {
                 mainImageUri: `${imageFolderReceipt}/${mainImage.name}`,
                 imageUri: `${imageFolderReceipt}`
@@ -91,6 +90,7 @@ export const uploadTokenMetadata = async (
     imageURI: string,
     address: string,
     propertyType: string,
+    marketingDescription: string,
     rentalYield: number,
     propertyValue: number,
     maximumSupply: number,
@@ -107,6 +107,7 @@ export const uploadTokenMetadata = async (
             "additional_images": imageURI,
             "rental_yield": rentalYield,
             "property_value": propertyValue,
+            "marketing_description": marketingDescription,
             "maximum_supply": maximumSupply,
         }
     }
@@ -124,7 +125,6 @@ export const uploadTokenMetadata = async (
             const metadataFolderReceipt = await uploadFolder(aptosWallet, [
                 jsonTokenMetadataFile
             ]);
-            console.log(metadataFolderReceipt)
 
             return {
                 metadataUri: `${metadataFolderReceipt}/metadata.json`,

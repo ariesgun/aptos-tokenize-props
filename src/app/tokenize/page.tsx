@@ -26,6 +26,8 @@ import Image from "next/image";
 import { Footer } from "@/components/Footer";
 import { createEntry } from "@/entry-functions/create_entry";
 import { uploadPropertyImages, uploadTokenMetadata } from "@/utils/assetsMetadataUploader";
+import { Textarea } from "@/components/ui/textarea";
+import { LabelTextArea } from "@/components/ui/labeled-textarea";
 
 function App() {
   // Wallet Adapter provider
@@ -39,11 +41,13 @@ function App() {
   // Collection data entered by the user on UI
   const [propertyName, setPropertyName] = useState<string>("");
   const [propertyAddress, setPropertyAddress] = useState<string>("");
+  const [propertySymbol, setPropertySymbol] = useState<string>("");
   const [propertyType, setPropertyType] = useState<string>("");
   const [propertyValue, setPropertyValue] = useState<number>(0);
   const [rentalYield, setRentalYield] = useState<number>(0);
   const [targetFunding, setTargetFunding] = useState<number>(0);
   const [maximumSupply, setMaximumSupply] = useState<number>(0);
+  const [marketingDescription, setMarketingDescription] = useState<string>("");
   const [preMintAmount, setPreMintAmount] = useState<number>(0);
   const [publicMintStartDate, setPublicMintStartDate] = useState<Date>();
   const [publicMintStartTime, setPublicMintStartTime] = useState<string>();
@@ -111,27 +115,27 @@ function App() {
       const { metadataUri } = await uploadTokenMetadata(
         aptosWallet,
         propertyName,
-        "Represents tokenized property shares",
+        `Represents tokenized property shares of ${propertyName}`,
         mainImageUri,
         imageUri,
         propertyAddress,
         propertyType,
+        marketingDescription,
         rentalYield,
         propertyValue,
-        maximumSupply
+        maximumSupply,
       )
-
-      // let metadataUri = "hello.json"
 
       // Submit a create_collection entry function transaction
       const individualTokenPrice = targetFunding / maximumSupply
       const response = await signAndSubmitTransaction(
         createEntry({
-          propertyDescription: "Represents tokenized property shares",
+          propertyDescription: `Represents tokenized property shares of ${propertyName}`,
           propertyName,
-          propertySymbol: "OOOO",
+          propertySymbol,
           maximumSupply,
           entryUri: metadataUri,
+          iconUri: mainImageUri,
           premintAddresses: undefined,
           preMintAmount: undefined,
           publicMintStartDate,
@@ -162,7 +166,7 @@ function App() {
     <>
       <Header />
 
-      <div className="flex flex-col md:flex-row items-start justify-between px-4 py-2 gap-4 max-w-screen-xl mx-auto">
+      <div className="flex flex-col md:flex-row items-start justify-between px-8 py-2 gap-4 max-w-screen-xl mx-auto">
         <div className="w-full md:w-2/3 flex flex-col gap-y-4 order-2 md:order-1">
           {(!account || account.address !== CREATOR_ADDRESS) && (
             <WarningAlert title={account ? "Wrong account connected" : "No account connected"}>
@@ -206,14 +210,14 @@ function App() {
           />
 
           <LabeledInput
-            id="property-type"
+            id="property-symbol"
             required
             type="text"
-            label="Property Type"
-            tooltip="Property type (i.e., flat, condo, residential)"
+            label="Token Symbol"
+            tooltip="Token symbol"
             disabled={isUploading || !account}
             onChange={(e) => {
-              setPropertyType(e.target.value);
+              setPropertySymbol(e.target.value);
             }}
           />
 
@@ -280,6 +284,17 @@ function App() {
               </CardContent>
             </Card>
           </div>
+
+          <LabelTextArea
+            id="marketing-desc"
+            required
+            label="Marketing Description"
+            tooltip="Description of tokenized property to attract investors"
+            disabled={isUploading || !account}
+            onChange={(e) => {
+              setMarketingDescription(e.target.value);
+            }}
+          />
 
           <LabeledInput
             id="property-value"
@@ -388,7 +403,7 @@ function App() {
 
           <ConfirmButton
             title="Create Collection"
-            className="self-start"
+            className="self-start mt-8"
             onSubmit={onCreateCollection}
             // disabled={
             //   !account ||

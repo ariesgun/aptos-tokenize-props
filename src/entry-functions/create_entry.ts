@@ -9,6 +9,7 @@ export type CreateEntryArguments = {
   propertyName: string; // The collection name
   propertySymbol: string;
   entryUri: string; // The project URI (i.e https://mydomain.com)
+  iconUri: string;
   maximumSupply: number; // The amount of NFTs in a collection
   premintAddresses?: Array<AccountAddressInput>; // addresses in the allow list
   preMintAmount?: Array<number>; // amount of NFT to pre-mint for myself
@@ -26,6 +27,7 @@ export const createEntry = (args: CreateEntryArguments): InputTransactionData =>
     propertySymbol,
     maximumSupply,
     entryUri,
+    iconUri,
     premintAddresses,
     preMintAmount,
     publicMintStartDate,
@@ -44,6 +46,7 @@ export const createEntry = (args: CreateEntryArguments): InputTransactionData =>
         propertySymbol,
         maximumSupply,
         entryUri,
+        iconUri,
         premintAddresses,
         preMintAmount,
         publicMintStartDate ? dateToSeconds(publicMintStartDate) : dateToSeconds(new Date()),

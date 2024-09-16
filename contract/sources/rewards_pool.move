@@ -7,12 +7,12 @@
 
 module property_test::rewards_pool {
 
-    use aptos_framework::fungible_asset::{Self, FungibleAsset, FungibleStore, Metadata};
+    use aptos_framework::fungible_asset::{Self, FungibleStore, Metadata};
     use aptos_framework::primary_fungible_store;
     use aptos_framework::object::{Self, Object, ExtendRef};
-    use aptos_std::pool_u64_unbound::{Self as pool_u64, Pool};
+    // use aptos_std::pool_u64_unbound::{Self as pool_u64, Pool};
     use aptos_std::simple_map::{Self, SimpleMap};
-    use aptos_std::smart_table::{Self, SmartTable};
+    // use aptos_std::smart_table::{Self, SmartTable};
     use aptos_std::table::{Self, Table};
 
     // use rewards_pool::epoch;

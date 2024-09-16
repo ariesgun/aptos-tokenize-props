@@ -19,7 +19,7 @@ module property_test::ownership_token {
     use std::option;
     use std::vector;
 
-    use std::debug;
+    // use std::debug;
 
     friend property_test::controller;
 
@@ -28,9 +28,9 @@ module property_test::ownership_token {
     const EPAUSED: u64 = 2;
 
     const APP_SEED: vector<u8> = b"OWNERSHIP_TOKEN_CONTRACT";
-    const COLLECTION_NAME: vector<u8> = b"";
-    const COLLECTION_DESCRIPTION: vector<u8> = b"";
-    const COLLECTION_URI: vector<u8> = b"";
+    const COLLECTION_NAME: vector<u8> = b"Tokenized Properties Collection";
+    const COLLECTION_DESCRIPTION: vector<u8> = b"Tokenized properties collection";
+    const COLLECTION_URI: vector<u8> = b"https://aptos.com";
 
     // Unique per FA
     #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
@@ -119,9 +119,11 @@ module property_test::ownership_token {
     public(friend) fun create_ownership_token (
         name: String,
         symbol: String,
+        decimals: u8,
         maximum_supply: u128,
         token_description: String,
         token_uri: String,
+        token_icon: String,
     ): ConstructorRef acquires AppObjectController {
         let app_signer = &get_app_signer(get_app_signer_address());
         let token_seed = construct_token_seed(&symbol, &name);
@@ -134,7 +136,7 @@ module property_test::ownership_token {
             token_description,
             name,
             utf8(token_seed),
-            option::none(),
+            option::none(), // royalty
             token_uri,
         );
 
@@ -143,9 +145,9 @@ module property_test::ownership_token {
             option::some(maximum_supply), // maximum supply
             name,
             symbol,
-            1, // Decimals
-            utf8(b""), // icon
-            utf8(b""), // project
+            decimals, // Decimals
+            token_icon, // icon
+            token_uri, // project
         );
         let extend_ref = object::generate_extend_ref(&constructor_ref);
 
@@ -153,8 +155,8 @@ module property_test::ownership_token {
         let burn_ref = fungible_asset::generate_burn_ref(&constructor_ref);
         let transfer_ref = fungible_asset::generate_transfer_ref(&constructor_ref);
 
-        let asset_address = object::address_from_constructor_ref(&constructor_ref);
-        let asset_obj = object::address_to_object<Metadata>(asset_address);
+        // let asset_address = object::address_from_constructor_ref(&constructor_ref);
+        // let asset_obj = object::address_to_object<Metadata>(asset_address);
 
         let metadata_object_signer = object::generate_signer(&constructor_ref);
         move_to(

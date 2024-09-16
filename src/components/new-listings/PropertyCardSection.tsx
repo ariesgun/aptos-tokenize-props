@@ -7,28 +7,50 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useQueryClient } from "@tanstack/react-query";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // import { useGetCollectionData } from "@/hooks/useGetCollectionData";
 import { clampNumber } from "@/utils/clampNumber";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
+import { useGetTokenData } from "@/hooks/useGetTokensOfCollection";
 
 
 export interface PropertyCardSectionProps {
-    token_data_id: string;
+    token_data: any;
+    listing_info: any;
 }
 
-export function PropertyCardSection({ token_data_id }: PropertyCardSectionProps) {
+export function PropertyCardSection({ token_data, listing_info }: PropertyCardSectionProps) {
     // const { data } = useGetCollectionData();
     const queryClient = useQueryClient();
-    const { account, signAndSubmitTransaction } = useWallet();
-    const [nftCount, setNftCount] = useState(1);
+    const { data } = useGetTokenData(token_data.token_data_id);
+    const { account } = useWallet();
+
+    useEffect(() => {
+        queryClient.invalidateQueries();
+    }, [account, queryClient]);
 
     // const { userMintBalance = 0, collection, totalMinted = 35, maxSupply = 100 } = data ?? {};
-    let totalMinted = 35;
-    let maxSupply = 100;
-    let userMintBalance = 0;
-    const mintUpTo = Math.min(userMintBalance, maxSupply - totalMinted);
+
+    const [tokenMetadata, setTokenMetadata] = useState<any>({});
+
+    useEffect(() => {
+        const getTokenMetadata = async () => {
+            try {
+                const res = await fetch(token_data.token_uri)
+                const token_metadata = await res.json();
+                setTokenMetadata(token_metadata)
+            } catch (e) {
+                console.warn(e)
+            }
+        }
+
+        getTokenMetadata();
+    }, [token_data]);
+
+
+    let totalMinted = data?.amount_v2 ?? 0;
+    let maxSupply = tokenMetadata?.properties?.property_value ?? 1000;
 
     return (
         <section>
@@ -40,10 +62,10 @@ export function PropertyCardSection({ token_data_id }: PropertyCardSectionProps)
                     <Image src="/image1.png" width={480} height={480} alt="" />
 
                     <div className="p-4 pt-0">
-                        <h5 className="mt-4 mb-1 text-xl font-bold text-gray-700 dark:text-gray-400">The Loft</h5>
-                        <h5 className="mb-4 text-md font-normal text-gray-700 dark:text-gray-400">Raiffeisenstraat 64, Eindhoven</h5>
+                        <h5 className="mt-4 mb-1 text-xl font-bold text-gray-700 dark:text-gray-400">{tokenMetadata.name}</h5>
+                        <h5 className="mb-4 text-md font-normal text-gray-700 dark:text-gray-400">{tokenMetadata.address}</h5>
                         <p className="text-md font-normal text-gray-700 dark:text-gray-400">
-                            Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.
+                            {tokenMetadata.properties?.marketing_description}
                         </p>
 
                         <Separator className="mt-4 mb-2" />
@@ -51,15 +73,15 @@ export function PropertyCardSection({ token_data_id }: PropertyCardSectionProps)
                         <div className="flex flex-row gap-6 w-full md:basis-1/3">
                             <div className="flex flex-col gap-4 w-full items-center border border-indigo-800 rounded-lg py-4 shadow-md">
                                 <p className="text-xs font-bold text-center">Annual Rental Yield</p>
-                                <p className="text-xs font-normal text-secondary-text">14 %</p>
+                                <p className="text-xs font-normal text-secondary-text">{tokenMetadata.properties?.rental_yield} %</p>
                             </div>
                             <div className="flex flex-col gap-4 w-full items-center border border-indigo-800 rounded-lg py-4 shadow-md">
                                 <p className="text-xs font-bold text-center">Property Fair Value</p>
-                                <p className="text-xs font-normal text-secondary-text">$ 425000</p>
+                                <p className="text-xs font-normal text-secondary-text">$ {tokenMetadata.properties?.property_value}</p>
                             </div>
                             <div className="flex flex-col gap-4 w-full items-center border border-indigo-800 rounded-lg py-4 shadow-md">
                                 <p className="text-xs font-bold text-center">Individual Token Price</p>
-                                <p className="text-xs font-normal text-secondary-text">$ 50</p>
+                                <p className="text-xs font-normal text-secondary-text">$ {listing_info?.token_price}</p>
                             </div>
                         </div>
 
@@ -72,7 +94,7 @@ export function PropertyCardSection({ token_data_id }: PropertyCardSectionProps)
                             </p>
                             <Progress value={(totalMinted / maxSupply) * 100} className="h-2" />
                         </div>
-                        <Link href={`/new-listings/${token_data_id}`}>
+                        <Link href={`/new-listings/${token_data.token_data_id}`}>
                             <Button className="w-full my-8 py-6 mb-0">
                                 <p className="text-md">See Details ➡️</p>
                             </Button>

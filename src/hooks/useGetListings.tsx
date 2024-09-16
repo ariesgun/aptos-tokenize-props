@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { aptosClient } from "@/utils/aptosClient";
 import { getRegistry } from "@/view-functions/getRegistry";
 import { getListings } from "@/view-functions/getListings";
+import { getListingInfo } from "@/view-functions/getListingInfo";
 
 /**
  * A react hook to get all collections under the current contract.
@@ -13,7 +14,6 @@ import { getListings } from "@/view-functions/getListings";
  *
  */
 export function useGetListings() {
-    const [collections, setCollections] = useState<Array<GetCollectionDataResponse>>([]);
     const [listings, setListings] = useState<Array<any>>([]);
 
     useEffect(() => {
@@ -21,7 +21,7 @@ export function useGetListings() {
             // fetch the contract registry address
             const registry = await getListings();
             // fetch collections objects created under that contract registry address
-            const objects = await getObjects(registry);
+            const objects = await getListingsInfo(registry);
             // get each collection object data
             //   const collections = await getCollections(objects);
             //   setCollections(collections);
@@ -33,6 +33,37 @@ export function useGetListings() {
 
     return listings;
 }
+
+export function useGetListingInfo(obj_addr: string) {
+    const [listingInfo, setListingInfo] = useState<any>({});
+
+    useEffect(() => {
+        async function run() {
+            // fetch collections objects created under that contract registry address
+            const objects = await getListingInfo({ listing_obj_addr: obj_addr });
+            setListingInfo(objects)
+        }
+
+        run();
+    }, []);
+
+    return listingInfo;
+}
+
+
+const getListingsInfo = async (registry: [{ inner: string }]) => {
+    const objects = await Promise.all(
+        registry.map(async (register: { inner: string }) => {
+            const formattedRegistry = AccountAddress.from(register.inner).toString();
+            const object = await getListingInfo({
+                listing_obj_addr: formattedRegistry,
+            });
+
+            return object;
+        }),
+    );
+    return objects;
+};
 
 const getObjects = async (registry: [{ inner: string }]) => {
     const objects = await Promise.all(

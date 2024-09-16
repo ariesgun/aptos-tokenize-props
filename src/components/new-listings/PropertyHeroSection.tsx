@@ -1,4 +1,4 @@
-import { FC, FormEvent, useState } from "react";
+import { FC, FormEvent, useEffect, useState } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { useQueryClient } from "@tanstack/react-query";
 // Internal assets
@@ -27,140 +27,156 @@ import { config } from "@/config";
 import { mintNFT } from "@/entry-functions/mint_nft";
 
 interface PropertyHeroSectionProps {
-    tokenId: string | undefined;
-    propertyName: string | undefined;
-    propertyAddress: string | undefined;
-    propertyDescription: string | undefined;
-    propertyMetadata: any;
+  tokenId: string | undefined;
+  propertyName: string | undefined;
+  propertyAddress: string | undefined;
+  propertyDescription: string | undefined;
+  propertyMetadata: any;
+  listingInfo: any;
 }
 
 export const PropertyHeroSection: React.FC<PropertyHeroSectionProps> = ({
-    tokenId,
-    propertyName,
-    propertyAddress,
-    propertyDescription,
-    propertyMetadata
+  tokenId,
+  propertyName,
+  propertyAddress,
+  propertyDescription,
+  propertyMetadata,
+  listingInfo
 }) => {
-    const { data } = useGetCollectionData();
-    const queryClient = useQueryClient();
-    const { account, signAndSubmitTransaction } = useWallet();
-    const [nftCount, setNftCount] = useState(1);
+  const { data } = useGetCollectionData();
+  const queryClient = useQueryClient();
+  const { account, signAndSubmitTransaction } = useWallet();
+  const [nftCount, setNftCount] = useState(1);
+  const [additionalImages, setAdditionalImages] = useState<Array<any>>([])
 
-    const { userMintBalance = 0, collection, totalMinted = 0, maxSupply = 1 } = data ?? {};
-    const mintUpTo = Math.min(userMintBalance, maxSupply - totalMinted);
+  const { userMintBalance = 0, collection, totalMinted = 0, maxSupply = 1 } = data ?? {};
+  const mintUpTo = Math.min(userMintBalance, maxSupply - totalMinted);
 
-    console.log("Metadata", propertyMetadata)
+  const start_date = new Date(listingInfo?.start_date * 1000);
+  const end_date = new Date(listingInfo?.end_date * 1000);
 
-    return (
-        <section className="hero-container flex flex-col md:flex-row gap-6 px-4 max-w-screen-xl mx-auto w-full">
-            <div className="grid gap-4 md:basis-2/5 w-full">
-                <div>
-                    <Image
-                        src={propertyMetadata?.image ?? Placeholder1.src}
-                        className="w-full aspect-square object-cover self-center rounded-lg"
-                    />
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                    <div>
-                        <Image className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-1.jpg" alt="" />
-                    </div>
-                    <div>
-                        <Image className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-1.jpg" alt="" />
-                    </div>
-                    <div>
-                        <Image className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-2.jpg" alt="" />
-                    </div>
-                    <div>
-                        <Image className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-3.jpg" alt="" />
-                    </div>
-                    <div>
-                        <Image className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-4.jpg" alt="" />
-                    </div>
-                    <div>
-                        <Image className="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-5.jpg" alt="" />
-                    </div>
-                </div>
+  useEffect(() => {
+    if (!propertyMetadata) return;
+
+    try {
+      fetch(propertyMetadata.properties.additional_images)
+        .then((res) => {
+          res.json()
+            .then((payloads) => {
+              let images: Array<string> = []
+              for (const [key, value] of Object.entries(payloads.paths)) {
+                if (!key.startsWith("main")) {
+                  images.push(`${propertyMetadata.properties.additional_images}/${key}`)
+                }
+              }
+              setAdditionalImages(images)
+            })
+        }
+        )
+    } catch (e) {
+      console.error(e)
+    }
+  }, [propertyMetadata])
+
+  return (
+    <section className="hero-container flex flex-col md:flex-row gap-6 px-4 max-w-screen-xl mx-auto w-full">
+      <div className="grid gap-4 md:basis-2/5 w-full">
+        <div>
+          <Image
+            src={propertyMetadata?.image ?? Placeholder1.src}
+            className="w-full aspect-square object-cover self-center rounded-lg"
+          />
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          {
+            additionalImages?.length > 0 && additionalImages.map((el, idx) => (
+              <div key={idx}>
+                <Image className="h-auto max-w-full rounded-lg" src={el} alt="" />
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <div className="basis-3/5 flex flex-col gap-4">
+        <h1 className="title-md">
+          {propertyName}
+        </h1>
+        <h1 className="title-sm">
+          {propertyMetadata?.properties?.address}
+        </h1>
+        <p className="body-sm">
+          {propertyMetadata?.properties?.marketing_description}
+        </p>
+
+        <div className="flex flex-row gap-6 w-full">
+          <div className="flex flex-col gap-4 w-full items-center border border-indigo-800 rounded-lg py-4 shadow-md">
+            <p className="text-base font-bold text-center">Property Fair Value</p>
+            <p className="text-base font-normal text-secondary-text">$ {propertyMetadata?.properties?.property_value}</p>
+          </div>
+          <div className="flex flex-col gap-4 w-full items-center border border-indigo-800 rounded-lg py-4 shadow-md">
+            <p className="text-base font-bold text-center">Annual Rental Yield</p>
+            <p className="text-base font-normal text-secondary-text">{propertyMetadata?.properties?.rental_yield} %</p>
+          </div>
+        </div>
+
+        <div className="flex gap-x-2 items-center flex-wrap justify-between">
+          <p className="whitespace-nowrap body-sm-semibold">Token Address</p>
+
+          <div className="flex gap-x-2">
+            <AddressButton address={tokenId ?? ""} />
+            <a
+              className={buttonVariants({ variant: "link" })}
+              target="_blank"
+              href={`https://explorer.aptoslabs.com/account/${tokenId}?network=${NETWORK}`}
+            >
+              View on Explorer <Image src={ExternalLink.src} />
+            </a>
+          </div>
+        </div>
+
+        <div>
+          {new Date() < start_date && (
+            <div className="flex gap-x-2 justify-between flex-wrap">
+              <p className="body-sm-semibold">Minting starts</p>
+              <p className="body-sm">{formatDate(start_date)}</p>
             </div>
+          )}
 
-            <div className="basis-3/5 flex flex-col gap-4">
-                <h1 className="title-md">
-                    {propertyName}
-                </h1>
-                <h1 className="title-sm">
-                    {propertyAddress}
-                </h1>
-                <p className="body-sm">
-                    {propertyDescription}
-                </p>
-
-                <div className="flex flex-row gap-6 w-full">
-                    <div className="flex flex-col gap-4 w-full items-center border border-indigo-800 rounded-lg py-4 shadow-md">
-                        <p className="text-base font-bold text-center">Property Fair Value</p>
-                        <p className="text-base font-normal text-secondary-text">$ {propertyMetadata?.properties?.property_value}</p>
-                    </div>
-                    <div className="flex flex-col gap-4 w-full items-center border border-indigo-800 rounded-lg py-4 shadow-md">
-                        <p className="text-base font-bold text-center">Annual Rental Yield</p>
-                        <p className="text-base font-normal text-secondary-text">{propertyMetadata?.properties?.rental_yield} %</p>
-                    </div>
-                </div>
-
-                <div className="flex gap-x-2 items-center flex-wrap justify-between">
-                    <p className="whitespace-nowrap body-sm-semibold">Token Address</p>
-
-                    <div className="flex gap-x-2">
-                        <AddressButton address={tokenId ?? ""} />
-                        <a
-                            className={buttonVariants({ variant: "link" })}
-                            target="_blank"
-                            href={`https://explorer.aptoslabs.com/account/${tokenId}?network=${NETWORK}`}
-                        >
-                            View on Explorer <Image src={ExternalLink.src} />
-                        </a>
-                    </div>
-                </div>
-
-                <div>
-                    {data?.startDate && new Date() < data.startDate && (
-                        <div className="flex gap-x-2 justify-between flex-wrap">
-                            <p className="body-sm-semibold">Minting starts</p>
-                            <p className="body-sm">{formatDate(data.startDate)}</p>
-                        </div>
-                    )}
-
-                    {data?.endDate && new Date() < data.endDate && !data.isMintInfinite && (
-                        <div className="flex gap-x-2 justify-between flex-wrap">
-                            <p className="body-sm-semibold">Minting ends</p>
-                            <p className="body-sm">{formatDate(data.endDate)}</p>
-                        </div>
-                    )}
-
-                    {data?.endDate && new Date() > data.endDate && <p className="body-sm-semibold">Minting has ended</p>}
-                </div>
+          {new Date() < end_date && (
+            <div className="flex gap-x-2 justify-between flex-wrap">
+              <p className="body-sm-semibold">Minting ends</p>
+              <p className="body-sm">{formatDate(end_date)}</p>
             </div>
-        </section>
-    );
+          )}
+
+          {new Date() > end_date && <p className="body-sm-semibold">Minting has ended</p>}
+        </div>
+      </div>
+    </section>
+  );
 };
 
 const AddressButton: FC<{ address: string }> = ({ address }) => {
-    const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-    async function onCopy() {
-        if (copied) return;
-        await navigator.clipboard.writeText(address);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 3000);
-    }
+  async function onCopy() {
+    if (copied) return;
+    await navigator.clipboard.writeText(address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 3000);
+  }
 
-    return (
-        <Button onClick={onCopy} className="whitespace-nowrap flex gap-1 px-0 py-0" variant="link">
-            {copied ? (
-                "Copied!"
-            ) : (
-                <>
-                    {truncateAddress(address)}
-                    <Image src={Copy.src} className="dark:invert" />
-                </>
-            )}
-        </Button>
-    );
+  return (
+    <Button onClick={onCopy} className="whitespace-nowrap flex gap-1 px-0 py-0" variant="link">
+      {copied ? (
+        "Copied!"
+      ) : (
+        <>
+          {truncateAddress(address)}
+          <Image src={Copy.src} className="dark:invert" />
+        </>
+      )}
+    </Button>
+  );
 };

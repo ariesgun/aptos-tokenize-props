@@ -31,20 +31,19 @@ import { useGetTokenData, useGetTokensOfCollection } from "@/hooks/useGetTokensO
 import { PropertyHeroSection } from "@/components/new-listings/PropertyHeroSection";
 import { config } from "@/config";
 import { getListings } from "@/view-functions/getListings";
-import { useGetListings } from "@/hooks/useGetListings";
+import { useGetListingInfo, useGetListings } from "@/hooks/useGetListings";
 
 export default function Page({ params }: { params: { id: string } }) {
-
-    const listings: Array<any> = useGetListings();
-    console.log("lllll", listings)
 
     const queryClient = useQueryClient();
     const { account } = useWallet();
 
     const { data, isLoading } = useGetTokensOfCollection();
+    const listings: Array<any> = useGetListings();
 
     const [tokenData, setTokenData] = useState<any>();
     const [tokenMetadata, setTokenMetadata] = useState<any>();
+    const [listingInfo, setListingInfo] = useState<any>();
 
     useEffect(() => {
         queryClient.invalidateQueries();
@@ -58,7 +57,9 @@ export default function Page({ params }: { params: { id: string } }) {
     }, [data]);
 
     useEffect(() => {
-        console.log("aa", tokenData)
+        const listing_info = listings?.find((el) => el.ownership_token === params.id)
+        setListingInfo(listing_info);
+
         try {
             fetch(tokenData?.token_uri)
                 .then((res) => {
@@ -69,8 +70,7 @@ export default function Page({ params }: { params: { id: string } }) {
         } catch (e) {
             console.warn(e);
         }
-        getListings();
-    }, [tokenData])
+    }, [listings, tokenData])
 
     if (isLoading) {
         return (
@@ -92,6 +92,7 @@ export default function Page({ params }: { params: { id: string } }) {
                         propertyAddress="The address"
                         propertyDescription="The description"
                         propertyMetadata={tokenMetadata}
+                        listingInfo={listingInfo}
                     />
                     <MintCard
                         tokenId={tokenData?.token_data_id}
@@ -99,6 +100,7 @@ export default function Page({ params }: { params: { id: string } }) {
                         propertyAddress="The address"
                         propertyDescription="The description"
                         propertyMetadata={tokenMetadata}
+                        listingInfo={listingInfo}
                     />
                 </main>
 

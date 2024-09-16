@@ -145,7 +145,7 @@ export function useGetTokenData(token_address: string) {
                 });
 
                 const tokens = res.current_fungible_asset_balances;
-                if (!tokens) return null;
+                if (!tokens || tokens.length == 0) return {};
 
                 return tokens[0]
 

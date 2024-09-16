@@ -22,7 +22,7 @@ function App() {
   return (
     <>
       <Header />
-      <Table className="max-w-screen-xl mx-auto">
+      <Table className="max-w-screen-xl mx-auto px-8">
         {!collections.length && (
           <TableCaption>A list of the collections created under the current contract.</TableCaption>
         )}
