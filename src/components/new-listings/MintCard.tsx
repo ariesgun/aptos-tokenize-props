@@ -1,14 +1,10 @@
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { WalletSelector } from "@/components/WalletSelector";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useQueryClient } from "@tanstack/react-query";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { FormEvent, useEffect, useState } from "react";
-import { clampNumber } from "@/utils/clampNumber";
 import { Separator } from "../ui/separator";
 import { useGetTokenData } from "@/hooks/useGetTokensOfCollection";
 import { buyShares } from "@/entry-functions/buy_shares";

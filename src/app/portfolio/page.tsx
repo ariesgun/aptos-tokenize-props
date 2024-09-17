@@ -18,6 +18,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { useGetFungibleAmountByOwner } from "@/hooks/useGetFungibleAmount";
 import { Button } from "@/components/ui/button";
+import { ClaimRewardDialog } from "@/components/new-listings/ClaimRewardDialog";
 
 function App() {
   const collections: Array<GetCollectionDataResponse> = [];
@@ -60,11 +61,6 @@ function App() {
 
   }, [data]);
 
-  // useEffect(() => {
-  //   const listing_info = listings?.find((el) => el.ownership_token === params.id)
-  //   setListingInfo(listing_info);
-  // }, [listings, tokenData])
-
   // If we are on Production mode, redierct to the mint page
   // const navigate = useNavigate();
   // if (IS_PROD) navigate("/", { replace: true });
@@ -72,7 +68,7 @@ function App() {
   return (
     <>
       <Header />
-      <Table className="max-w-screen-xl mx-auto px-8">
+      <Table className="max-w-screen-xl mx-auto px-10">
         {!tokenMetadatas.length && (
           <TableCaption>A list of the collections created under the current contract.</TableCaption>
         )}
@@ -87,6 +83,9 @@ function App() {
           {tokenMetadatas.length > 0 &&
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             tokenMetadatas.map((tokenMetadata: any, idx: number) => {
+
+              const listing_info = listings.find((el) => el.ownership_token === data?.tokens_data![idx].token_data_id)
+
               return (
                 <TableRow key={tokenMetadata?.name}>
                   <TableCell className="max-w-60">
@@ -127,14 +126,20 @@ function App() {
                           <p className="text-md">See Details</p>
                         </Button>
                       </Link>
-                      <Button>Claim Rewards 🎁</Button>
+                      <ClaimRewardDialog
+                        listingInfo={listing_info}
+                        tokenShare={data?.fungible_assets?.find((el) => el.asset_type_v2 === data.tokens_data[idx].token_data_id)?.amount_v2}
+                        tokenSymbol={data?.fungible_assets?.find((el) => el.asset_type_v2 === data.tokens_data[idx].token_data_id)?.metadata.symbol}
+                      >
+                        <Button>Claim Rewards 🎁</Button>
+                      </ClaimRewardDialog>
                     </div>
                   </TableCell>
                 </TableRow>
               );
             })}
         </TableBody>
-      </Table>
+      </Table >
       <Footer />
     </>
   );
