@@ -149,18 +149,6 @@ export function useGetTokenData(token_address: string) {
 
                 return tokens[0]
 
-                // return {
-                //     maxSupply: collection.max_supply ?? 0,
-                //     totalMinted: collection.current_supply ?? 0,
-                //     uniqueHolders: res.current_collection_ownership_v2_view_aggregate.aggregate?.count ?? 0,
-                //     userMintBalance: 0,
-                //     collection,
-                //     endDate: new Date(),
-                //     startDate: new Date(),
-                //     isMintActive: false,
-                //     isMintInfinite: false,
-                // } satisfies MintData;
-
                 // const mintStageRes = await getActiveOrNextMintStage({ collection_address });
                 // // Only return collection data if no mint stage is found
                 // if (mintStageRes.length === 0) {

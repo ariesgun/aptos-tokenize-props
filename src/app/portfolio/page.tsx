@@ -11,9 +11,59 @@ import { useGetCollections } from "@/hooks/useGetCollections";
 import { IS_PROD, NETWORK } from "@/constants";
 import Link from "next/link";
 import { Footer } from "@/components/Footer";
+import { useGetListings } from "@/hooks/useGetListings";
+import { useEffect, useState } from "react";
+import { useGetTokensOfCollection } from "@/hooks/useGetTokensOfCollection";
+import { useQueryClient } from "@tanstack/react-query";
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { useGetFungibleAmountByOwner } from "@/hooks/useGetFungibleAmount";
+import { Button } from "@/components/ui/button";
 
 function App() {
-  const collections: Array<GetCollectionDataResponse> = useGetCollections();
+  const collections: Array<GetCollectionDataResponse> = [];
+
+  const queryClient = useQueryClient();
+  const { account } = useWallet();
+
+  // const { data, isLoading } = useGetTokensOfCollection();
+  const { data, isLoading } = useGetFungibleAmountByOwner(account?.address ?? "");
+
+  const listings: Array<any> = useGetListings();
+
+  const [tokenData, setTokenData] = useState<any>();
+  const [tokenMetadatas, setTokenMetadatas] = useState<Array<any>>([]);
+
+  useEffect(() => {
+    queryClient.invalidateQueries();
+  }, [account, queryClient]);
+
+  useEffect(() => {
+    const fetchTokenMetadatas = async (tokens: Array<any>) => {
+      const metadatas = await Promise.all(
+        tokens.map(async (token: any) => {
+          try {
+            const res = await fetch(token?.token_uri);
+            const metadata = await res.json();
+            return metadata;
+          } catch (e) {
+            console.warn(e);
+          }
+        })
+      );
+
+      console.log("Results", tokens, metadatas)
+      setTokenMetadatas(metadatas);
+      return metadatas;
+    };
+
+    fetchTokenMetadatas(data?.tokens_data ?? [])
+
+  }, [data]);
+
+  // useEffect(() => {
+  //   const listing_info = listings?.find((el) => el.ownership_token === params.id)
+  //   setListingInfo(listing_info);
+  // }, [listings, tokenData])
 
   // If we are on Production mode, redierct to the mint page
   // const navigate = useNavigate();
@@ -23,44 +73,63 @@ function App() {
     <>
       <Header />
       <Table className="max-w-screen-xl mx-auto px-8">
-        {!collections.length && (
+        {!tokenMetadatas.length && (
           <TableCaption>A list of the collections created under the current contract.</TableCaption>
         )}
         <TableHeader>
           <TableRow>
-            <TableHead>Collection</TableHead>
-            <TableHead>Collection Address</TableHead>
-            <TableHead>Minted NFTs</TableHead>
-            <TableHead>Max Supply</TableHead>
+            <TableHead>Property</TableHead>
+            <TableHead>Shares</TableHead>
+            <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {collections.length > 0 &&
+          {tokenMetadatas.length > 0 &&
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            collections.map((collection: any) => {
+            tokenMetadatas.map((tokenMetadata: any, idx: number) => {
               return (
-                <TableRow key={collection?.collection_id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2 flex-wrap">
+                <TableRow key={tokenMetadata?.name}>
+                  <TableCell className="max-w-60">
+                    <div className="flex flex-col lg:flex-row gap-6 w-full items-center lg:items-start">
                       <Image
-                        src={collection?.cdn_asset_uris?.cdn_image_uri ?? ""}
+                        src={tokenMetadata?.image ?? ""}
                         rounded
-                        className="w-10 h-10 bg-gray-100 shrink-0"
+                        className="w-96 h-56 bg-gray-100 shrink-0"
                       />
-                      <span>{collection?.collection_name}</span>
+                      <div className="flex flex-col items-start gap-3 flex-wrap">
+                        <h1 className="text-lg font-bold">{tokenMetadata?.name}</h1>
+                        <p>{tokenMetadata?.properties.address}</p>
+                        <div className="flex flex-row gap-6 w-3/4">
+                          <div className="flex flex-col gap-4 w-full items-center border border-indigo-800 rounded-lg py-4 shadow-md">
+                            <p className="text-xs font-bold text-center">Annual Rental Yield</p>
+                            <p className="text-xs font-normal text-secondary-text">{tokenMetadata.properties?.rental_yield} %</p>
+                          </div>
+                          <div className="flex flex-col gap-4 w-full items-center border border-indigo-800 rounded-lg py-4 shadow-md">
+                            <p className="text-xs font-bold text-center">Property Fair Value</p>
+                            <p className="text-xs font-normal text-secondary-text">$ {tokenMetadata.properties?.property_value}</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <Link
-                      href={`https://explorer.aptoslabs.com/object/${collection?.collection_id}?network=${NETWORK}`}
-                      target="_blank"
-                      style={{ textDecoration: "underline" }}
-                    >
-                      {collection?.collection_id}
-                    </Link>
+                  <TableCell className="max-w-4">
+                    <div className="flex flex-col gap-2">
+                      <p className="text-md">
+                        {data?.fungible_assets?.find((el) => el.asset_type_v2 === data.tokens_data[idx].token_data_id)?.amount_v2}
+                        <span className="font-bold"> ${data?.fungible_assets?.find((el) => el.asset_type_v2 === data.tokens_data[idx].token_data_id)?.metadata.symbol}</span>
+                      </p>
+                    </div>
                   </TableCell>
-                  <TableCell>{collection?.total_minted_v2}</TableCell>
-                  <TableCell>{collection?.max_supply}</TableCell>
+                  <TableCell className="max-w-4">
+                    <div className="flex flex-col gap-2 mx-4">
+                      <Link href={`/portfolio/${data?.tokens_data![idx].token_data_id}`}>
+                        <Button className="w-full">
+                          <p className="text-md">See Details</p>
+                        </Button>
+                      </Link>
+                      <Button>Claim Rewards 🎁</Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               );
             })}
