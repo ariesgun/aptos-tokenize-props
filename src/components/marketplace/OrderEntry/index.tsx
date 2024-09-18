@@ -48,7 +48,6 @@ export const OrderEntry: React.FC<{
         </TabList>
         <TabPanels>
           <TabPanel>
-            <p>Limit</p>
             <LimitOrderEntry
               marketData={marketData}
               side={side}
@@ -56,7 +55,6 @@ export const OrderEntry: React.FC<{
             />
           </TabPanel>
           <TabPanel>
-            <p>Market</p>
             <MarketOrderEntry
               marketData={marketData}
               side={side}

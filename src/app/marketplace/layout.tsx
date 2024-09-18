@@ -1,19 +1,15 @@
+"use client"
+
 import { ReactQueryProvider } from "@/components/ReactQueryProvider";
 import { WalletProvider } from "@/components/WalletProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { WrongNetworkAlert } from "@/components/WrongNetworkAlert";
-import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import "./globals.css";
+import "../globals.css";
 import { Provider } from "react-redux";
 import { store } from "@/store/store";
 
-export const metadata: Metadata = {
-  title: "NextJS Boilerplate Template",
-  description: "NextJS Boilerplate Template is a...",
-};
-
-export default function RootLayout({
+export default function MarketplaceLayout({
   children,
 }: {
   children: ReactNode;
@@ -21,14 +17,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <WalletProvider>
-          <ReactQueryProvider>
-            <div id="root">{children}</div>
-            <WrongNetworkAlert />
-            <Toaster />
-          </ReactQueryProvider>
-        </WalletProvider>
+        <Provider store={store}>
+          <WalletProvider>
+            <ReactQueryProvider>
+              <div id="root">{children}</div>
+              <WrongNetworkAlert />
+              <Toaster />
+            </ReactQueryProvider>
+          </WalletProvider>
+        </Provider>
       </body>
-    </html>
+    </html >
   );
 }
