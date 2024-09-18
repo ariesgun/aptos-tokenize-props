@@ -11,6 +11,7 @@ import { OrderbookTable } from "@/components/marketplace/OrderBookTable";
 import { OrderEntry } from "@/components/marketplace/OrderEntry";
 import { OrdersTable } from "@/components/marketplace/OrderTable";
 import { StatsBar } from "@/components/marketplace/StatsBar";
+import { TradeHistoryTable } from "@/components/marketplace/TradeHistoryTable";
 import { DepositWithdrawFlowModal } from "@/components/marketplace/modals/flows/DepositWithdrawFlowModal";
 import { ApiMarket } from "@/components/marketplace/types/api";
 // Internal Components
@@ -101,7 +102,7 @@ function App() {
                     </CardContent>
                   </Card>
                   <Card>
-                    <CardContent className="flex flex-col gap-4 pt-6">
+                    <CardContent className="flex flex-col gap-6 pt-6">
                       <OrderbookTable
                         marketData={marketData[0]}
                         data={orderbookData}
@@ -111,6 +112,10 @@ function App() {
                       <OrdersTable
                         market_id={marketData[0].market_id}
                         marketData={marketData[0]}
+                      />
+                      <TradeHistoryTable
+                        marketData={marketData[0]}
+                        marketId={marketData[0].market_id}
                       />
                     </CardContent>
                   </Card>

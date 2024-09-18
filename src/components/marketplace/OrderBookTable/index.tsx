@@ -91,12 +91,12 @@ const Row: React.FC<{
       >
         <div className={`flex w-full justify-between`}>
           <div
-            className={`z-10  text-right font-roboto-mono text-xs ${type === "ask" ? "text-red" : "text-green"
+            className={`z-10  text-right font-roboto-mono text-sm ${type === "ask" ? "text-red" : "text-green"
               }`}
           >
             {price.toLocaleString()}
           </div>
-          <div className={`z-10  py-0.5 font-roboto-mono text-xs text-neutral-600 `}>
+          <div className={`z-10  py-0.5 font-roboto-mono text-sm text-neutral-600 `}>
             {Number(size).toLocaleString()}
           </div>
         </div>
@@ -179,18 +179,18 @@ export function OrderbookTable({
       </div>
       <div className="flex h-[30px]">
         <div className="flex w-[50%] justify-between px-3 pl-4 pt-[7px]">
-          <p className="whitespace-nowrap font-roboto-mono text-xs text-neutral-500">
+          <p className="whitespace-nowrap font-roboto-mono text-sm text-neutral-500">
             BID <TokenSymbol symbol={marketData.quote?.symbol} />
           </p>
-          <p className="whitespace-nowrap font-roboto-mono text-xs text-neutral-500">
+          <p className="whitespace-nowrap font-roboto-mono text-sm text-neutral-500">
             AMOUNT <TokenSymbol symbol={marketData.base.symbol} />
           </p>
         </div>
         <div className="flex w-[50%] justify-between px-3 pl-4 pt-[7px]">
-          <p className="whitespace-nowrap font-roboto-mono text-xs text-neutral-500">
+          <p className="whitespace-nowrap font-roboto-mono text-sm text-neutral-500">
             ASK <TokenSymbol symbol={marketData.quote?.symbol} />
           </p>
-          <p className="whitespace-nowrap font-roboto-mono text-xs text-neutral-500">
+          <p className="whitespace-nowrap font-roboto-mono text-sm text-neutral-500">
             AMOUNT <TokenSymbol symbol={marketData.base.symbol} />
           </p>
         </div>
@@ -210,13 +210,13 @@ export function OrderbookTable({
                 key={"skeleton-" + i}
               >
                 <Skeleton
-                  containerClassName={`z-10 ml-2 font-roboto-mono text-xs text-left`}
+                  containerClassName={`z-10 ml-2 font-roboto-mono text-sm text-left`}
                   style={{
                     width: `${i % 2 == 0 ? 90 : 70}px`,
                   }}
                 />
                 <Skeleton
-                  containerClassName="z-10 mr-2 py-0.5 font-roboto-mono text-xs text-right"
+                  containerClassName="z-10 mr-2 py-0.5 font-roboto-mono text-sm text-right"
                   style={{
                     width: `${i % 2 == 0 ? 90 : 70}px`,
                   }}
@@ -261,7 +261,7 @@ export function OrderbookTable({
                   ))}
             </div>
             <div className="hidden items-center justify-between border-y border-neutral-600">
-              <div className="z-10 ml-4 text-right font-roboto-mono text-xs">
+              <div className="z-10 ml-4 text-right font-roboto-mono text-sm">
                 {toDecimalPrice({
                   price: spread?.price || 0,
                   marketData,

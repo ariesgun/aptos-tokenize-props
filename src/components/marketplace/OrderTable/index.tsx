@@ -325,7 +325,7 @@ export const OrdersTable: React.FC<{
           loading={isCancelingOrder}
         />
       </BaseModal>
-      <div className="flex justify-between mb-4">
+      <div className="flex justify-between mb-">
         <p className="font-jost text-2xl font-bold">Orders</p>
       </div>
       <table
