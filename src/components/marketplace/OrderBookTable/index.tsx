@@ -12,7 +12,7 @@ import { type Orderbook, type PriceLevel } from "../types/global";
 import { toDecimalPrice, toDecimalSize } from "@/utils/econia";
 import { calculateSpread } from "@/utils/formatter";
 
-import { TokenSymbol } from "./TokenSymbol";
+import { TokenSymbol } from "../TokenSymbol";
 
 const Row: React.FC<{
   level: PriceLevel;
@@ -52,7 +52,7 @@ const Row: React.FC<{
       mouseLeaveDelay={0}
       overlay={
         focus.price === price && focus.side ? (
-          <div className="w- h-fit  border border-neutral-600 bg-neutral-800 bg-noise px-4 py-2 font-roboto-mono text-neutral-500">
+          <div className="w- h-fit  border border-neutral-600 bg-neutral-800 px-4 py-2 font-roboto-mono text-neutral-500">
             <div className="flex items-center justify-between gap-6">
               <span>Average price </span>
               <span className="text-neutral-600">

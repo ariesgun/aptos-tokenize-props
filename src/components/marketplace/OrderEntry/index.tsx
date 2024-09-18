@@ -39,10 +39,10 @@ export const OrderEntry: React.FC<{
       </div>
       <TabGroup>
         <TabList className="my-5 flex justify-center gap-[31.25px]">
-          <Tab className="text-sm uppercase outline-none ui-selected:font-medium ui-selected:text-white ui-not-selected:font-light ui-not-selected:text-neutral-500">
+          <Tab className="text-sm uppercase outline-none data-[selected]:text-black font-bold text-neutral-500">
             Limit
           </Tab>
-          <Tab className="text-sm uppercase outline-none ui-selected:font-medium ui-selected:text-white ui-not-selected:font-light ui-not-selected:text-neutral-500">
+          <Tab className="text-sm uppercase outline-none data-[selected]:text-black font-bold text-neutral-500">
             Market
           </Tab>
         </TabList>

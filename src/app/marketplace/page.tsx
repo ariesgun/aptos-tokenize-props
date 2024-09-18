@@ -8,6 +8,8 @@ import { TransferAPT } from "@/components/TransferAPT";
 import { WalletDetails } from "@/components/WalletDetails";
 import { OrderbookTable } from "@/components/marketplace/OrderBookTable";
 import { OrderEntry } from "@/components/marketplace/OrderEntry";
+import { OrdersTable } from "@/components/marketplace/OrderTable";
+import { DepositWithdrawFlowModal } from "@/components/marketplace/modals/flows/DepositWithdrawFlowModal";
 // Internal Components
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OrderEntryContextProvider } from "@/contexts/OrderEntryContext";
@@ -23,6 +25,8 @@ function App() {
 
   const [marketData, setMarketData] = useState<Array<any>>([]);
   const [depositWithdrawModalOpen, setDepositWithdrawModalOpen] = useState<boolean>(false);
+
+
 
   const {
     data: orderbookData,
@@ -60,6 +64,10 @@ function App() {
                   isFetching={orderbookIsFetching}
                   isLoading={orderbookIsLoading}
                 />
+                <OrdersTable
+                  market_id={marketData[0].market_id}
+                  marketData={marketData[0]}
+                />
                 <WalletDetails />
                 <NetworkInfo />
                 <AccountInfo />
@@ -74,6 +82,14 @@ function App() {
           )}
         </div>
       </OrderEntryContextProvider>
+      <DepositWithdrawFlowModal
+        selectedMarket={marketData[0]}
+        isOpen={depositWithdrawModalOpen}
+        onClose={() => {
+          setDepositWithdrawModalOpen(false);
+        }}
+        allMarketData={marketData}
+      />
     </>
   );
 }

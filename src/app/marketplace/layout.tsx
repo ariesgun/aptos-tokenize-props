@@ -8,6 +8,7 @@ import type { ReactNode } from "react";
 import "../globals.css";
 import { Provider } from "react-redux";
 import { store } from "@/store/store";
+import { AptosContextProvider } from "@/contexts/AptosContext";
 
 export default function MarketplaceLayout({
   children,
@@ -15,9 +16,9 @@ export default function MarketplaceLayout({
   children: ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
-        <Provider store={store}>
+    <>
+      <Provider store={store}>
+        <AptosContextProvider>
           <WalletProvider>
             <ReactQueryProvider>
               <div id="root">{children}</div>
@@ -25,8 +26,8 @@ export default function MarketplaceLayout({
               <Toaster />
             </ReactQueryProvider>
           </WalletProvider>
-        </Provider>
-      </body>
-    </html >
+        </AptosContextProvider>
+      </Provider>
+    </>
   );
 }

@@ -83,7 +83,7 @@ const RangeSlider = ({
         marks={marks ?? marksDefault}
         value={value}
         className={`${className}`}
-        draggableTrack={false}
+        // draggableTrack={false}
         dotStyle={{
           backgroundColor: "black",
           borderColor: "black",

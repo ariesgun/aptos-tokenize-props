@@ -21,7 +21,7 @@ import NightlyIcon from "@/components/icons/NightlyIcon";
 import PetraIcon from "@/components/icons/PetraIcon";
 import PontemIcon from "@/components/icons/PontemIcon";
 import RiseIcon from "@/components/icons/RiseIcon";
-import { BaseModal } from "@/components/modals/BaseModal";
+import { BaseModal } from "@/components/marketplace/modals/BaseModal";
 
 export type ConnectWalletContextState = {
   connectWallet: () => void;
@@ -131,7 +131,7 @@ export function ConnectWalletContextProvider({ children }: PropsWithChildren) {
         showCloseButton={true}
       >
         <div className="px-[46px] py-[25.5px]">
-          <h2 className="text-center font-jost text-3xl font-bold text-white">
+          <h2 className="text-center font-jost text-3xl font-bold">
             Connect a Wallet
           </h2>
           <p className="mt-4 text-center text-sm leading-[30px] text-white">
