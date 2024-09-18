@@ -37,7 +37,6 @@ export const LimitOrderEntry: React.FC<{
   side: Side;
   onDepositWithdrawClick?: () => void;
 }> = ({ marketData, side, onDepositWithdrawClick }) => {
-  console.log("hhh", marketData)
   const { signAndSubmitTransaction } = useWallet();
 
   const {
@@ -140,6 +139,8 @@ export const LimitOrderEntry: React.FC<{
       throw new Error("Markets without base coin not supported");
     }
 
+    console.log("Price, size", price, size)
+
     if (
       !balance ||
       balance.quote_available === null ||
@@ -165,7 +166,7 @@ export const LimitOrderEntry: React.FC<{
       setError("size", { message: "SIZE TOO SMALL" });
       return;
     }
-
+    console.log("Info", marketData)
     let rawPrice = fromDecimalPrice({
       price: Number(price),
       lotSize: marketData.lot_size,
@@ -174,10 +175,14 @@ export const LimitOrderEntry: React.FC<{
       quoteCoinDecimals: marketData.quote.decimals,
     });
 
-    if (!rawPrice.modulo(marketData.tick_size).eq(0)) {
-      rawPrice = rawPrice.minus(rawPrice.modulo(marketData.tick_size));
-      setValue("price", `${toDecimalPrice({ price: rawPrice, marketData })}`);
-    }
+
+    console.log("rawPrice", rawPrice)
+
+    // if (!rawPrice.modulo(marketData.tick_size).eq(0)) {
+    //   console.log("W", rawPrice.modulo(marketData.tick_size))
+    //   rawPrice = rawPrice.minus(rawPrice.modulo(marketData.tick_size));
+    //   setValue("price", `${toDecimalPrice({ price: rawPrice, marketData })}`);
+    // }
 
     const rawBaseBalance = toRawCoinAmount(
       balance.base_available,
@@ -188,6 +193,10 @@ export const LimitOrderEntry: React.FC<{
       balance.quote_available,
       marketData.quote.decimals,
     );
+    console.log("raw baseline", rawBaseBalance)
+    console.log("raw quote", rawQuoteBalance)
+    console.log("rawsize:,", rawSize)
+
     if (
       (side === "buy" &&
         rawQuoteBalance.lt(
@@ -215,7 +224,7 @@ export const LimitOrderEntry: React.FC<{
       INTEGRATOR_ADDRESS,
       orderSide,
       BigInt(rawSize.div(marketData.lot_size).toString()),
-      BigInt(rawPrice.div(marketData.tick_size).toString()),
+      BigInt(rawPrice.toString()),
       "noRestriction",
       "abort",
     );

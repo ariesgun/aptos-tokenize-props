@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 
-import { type ApiMarket } from "@/types/api";
+import { type ApiMarket } from "@/components/marketplace/types/api";
 
 const TEN = new BigNumber(10);
 
@@ -38,10 +38,13 @@ export const fromDecimalPrice = ({
   baseCoinDecimals: BigNumber.Value;
   quoteCoinDecimals: BigNumber.Value;
 }): BigNumber => {
-  const ticksPerUnit = new BigNumber(price)
-    .multipliedBy(TEN.exponentiatedBy(quoteCoinDecimals))
-    .div(tickSize);
-  const lotsPerUnit = TEN.exponentiatedBy(baseCoinDecimals).div(lotSize);
+  // const ticksPerUnit = new BigNumber(price)
+  //   .multipliedBy(TEN.exponentiatedBy(quoteCoinDecimals))
+  //   .div(tickSize);
+  const ticksPerUnit = new BigNumber(price).multipliedBy(lotSize).div(TEN.exponentiatedBy(baseCoinDecimals))
+  // const lotsPerUnit = TEN.exponentiatedBy(baseCoinDecimals).div(lotSize);
+  const lotsPerUnit = new BigNumber(tickSize).div(TEN.exponentiatedBy(quoteCoinDecimals));
+  console.log(ticksPerUnit, lotsPerUnit, ticksPerUnit.div(lotsPerUnit))
   return ticksPerUnit.div(lotsPerUnit).decimalPlaces(0, BigNumber.ROUND_UP);
 };
 

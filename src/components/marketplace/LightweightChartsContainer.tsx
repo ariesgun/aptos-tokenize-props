@@ -45,8 +45,6 @@ export const LightweightChartsContainer: React.FC<
     DEFAULT_PRICE_AXIS_WIDTH,
   );
 
-  console.log("WHAT", chartData)
-
   const resizeChart = useCallback(() => {
     const chart = chartAPIRef.current;
     if (chart && chartIsInitialized.current) {

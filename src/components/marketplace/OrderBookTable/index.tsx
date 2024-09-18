@@ -25,6 +25,8 @@ const Row: React.FC<{
   const [flash, setFlash] = useState<"flash-red" | "flash-green" | "">("");
   const { focus, setFocus } = useOrderBookData(marketData);
 
+  console.log(type, level, highestSize)
+
   useEffect(() => {
     if (updatedLevel == undefined) {
       return;
@@ -232,7 +234,6 @@ export function OrderbookTable({
               className=" scrollbar-none flex h-full max-h-full w-[calc(50%-0.5px)] grow flex-col overflow-auto"
               ref={centerRef}
             >
-              <div className="grow"></div>
               {isSmallWindow
                 ? data?.asks
                   ?.slice()
@@ -248,7 +249,6 @@ export function OrderbookTable({
                   ))
                 : data?.asks
                   ?.slice()
-                  .reverse()
                   .map((level) => (
                     <Row
                       level={level}
