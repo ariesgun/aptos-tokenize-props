@@ -31,7 +31,7 @@ export const ClaimRewardDialog: React.FC<ClaimRewardDialogProps> = ({
 
   const { account, signAndSubmitTransaction } = useWallet();
 
-  const onClaimReward = async (_) => {
+  const onClaimReward = async (_: any) => {
     if (!account) return;
     if (!listingInfo) return;
 

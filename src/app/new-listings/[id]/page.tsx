@@ -3,35 +3,14 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { useEffect, useState } from "react";
-
-// import { BannerSection } from "@/pages/Mint/components/BannerSection";
-// import { HeroSection } from "@/pages/Mint/components/HeroSection";
-// import { StatsSection } from "@/pages/Mint/components/StatsSection";
-// import { OurStorySection } from "@/pages/Mint/components/OurStorySection";
-// import { HowToMintSection } from "@/pages/Mint/components/HowToMintSection";
-// import { OurTeamSection } from "@/pages/Mint/components/OurTeamSection";
-// import { FAQSection } from "@/pages/Mint/components/FAQSection";
-// import { Socials } from "@/pages/Mint/components/Socials";
-// import { ConnectWalletAlert } from "@/pages/Mint/components/ConnectWalletAlert";
-
-import { useGetCollectionData } from "@/hooks/useGetCollectionData";
-
 import { Header } from "@/components/Header";
-import { BannerSection } from "@/components/new-listings/BannerSection";
-import { HowToMintSection } from "@/components/new-listings/HowToMintSection";
-import { OurTeamSection } from "@/components/new-listings/OurTeamSection";
-import { FAQSection } from "@/components/new-listings/FAQSection";
-import { OurStorySection } from "@/components/new-listings/OurStorySection";
-import { StatsSection } from "@/components/new-listings/StatsSection";
 import { ConnectWalletAlert } from "@/components/new-listings/ConnectWalletAlert";
-import { HeroSection } from "@/components/new-listings/HeroSection";
 import { Footer } from "@/components/Footer";
 import { MintCard } from "@/components/new-listings/MintCard";
-import { useGetTokenData, useGetTokensOfCollection } from "@/hooks/useGetTokensOfCollection";
+import { useGetTokensOfCollection } from "@/hooks/useGetTokensOfCollection";
 import { PropertyHeroSection } from "@/components/new-listings/PropertyHeroSection";
 import { config } from "@/config";
-import { getListings } from "@/view-functions/getListings";
-import { useGetListingInfo, useGetListings } from "@/hooks/useGetListings";
+import { useGetListings } from "@/hooks/useGetListings";
 
 export default function Page({ params }: { params: { id: string } }) {
 

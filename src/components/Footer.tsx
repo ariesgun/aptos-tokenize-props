@@ -1,7 +1,3 @@
-import Link from "next/link";
-import { WalletSelector } from "./WalletSelector";
-import { buttonVariants } from "./ui/button";
-import { cn } from "@/lib/utils";
 import { Separator } from "./ui/separator";
 
 export function Footer() {

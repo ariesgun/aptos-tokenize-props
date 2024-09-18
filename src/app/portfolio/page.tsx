@@ -1,19 +1,15 @@
 "use client";
 
-import { GetCollectionDataResponse } from "@aptos-labs/ts-sdk";
 // Internal components
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Header } from "@/components/Header";
 import { Image } from "@/components/ui/image";
 // Internal hooks
-import { useGetCollections } from "@/hooks/useGetCollections";
 // Internal constants
-import { IS_PROD, NETWORK } from "@/constants";
 import Link from "next/link";
 import { Footer } from "@/components/Footer";
 import { useGetListings } from "@/hooks/useGetListings";
 import { useEffect, useState } from "react";
-import { useGetTokensOfCollection } from "@/hooks/useGetTokensOfCollection";
 import { useQueryClient } from "@tanstack/react-query";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { useGetFungibleAmountByOwner } from "@/hooks/useGetFungibleAmount";
@@ -21,17 +17,13 @@ import { Button } from "@/components/ui/button";
 import { ClaimRewardDialog } from "@/components/new-listings/ClaimRewardDialog";
 
 function App() {
-  const collections: Array<GetCollectionDataResponse> = [];
-
   const queryClient = useQueryClient();
   const { account } = useWallet();
 
-  // const { data, isLoading } = useGetTokensOfCollection();
-  const { data, isLoading } = useGetFungibleAmountByOwner(account?.address ?? "");
+  const { data } = useGetFungibleAmountByOwner(account?.address ?? "");
 
   const listings: Array<any> = useGetListings();
 
-  const [tokenData, setTokenData] = useState<any>();
   const [tokenMetadatas, setTokenMetadatas] = useState<Array<any>>([]);
 
   useEffect(() => {

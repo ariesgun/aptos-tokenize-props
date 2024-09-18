@@ -8,6 +8,7 @@ import { FC } from "react";
 import { Calendar } from "./calendar";
 import { Input } from "./input";
 import { Button } from "./button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
 
 export const DateTimeInput: FC<{
   className?: string;
@@ -34,44 +35,54 @@ export const DateTimeInput: FC<{
     return (
       <div className={cn("flex flex-col gap-4", className)}>
         {/* <Label htmlFor={id} tooltip={tooltip}> */}
-        <Label htmlFor={id}>
-          {label}
-        </Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              disabled={disabled}
-              id={id}
-              variant="outline"
-              className={cn(
-                "justify-start text-left font-normal",
-                !date && "text-muted-foreground"
-              )}>
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {date ? (
-                format(date, "MM/dd/yyyy hh:mm a")
-              ) : (
-                <span>Pick a date</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={onDateChange}
-              initialFocus
-              footer={
-                <Input
-                  type="time"
-                  className="w-max py-6"
-                  value={time}
-                  onChange={onTimeChange}
-                />
-              }
-            />
-          </PopoverContent>
-        </Popover>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Label htmlFor={id}>
+                {label}
+              </Label>
+            </TooltipTrigger>
+            <TooltipContent className="ml-16 mb-4">
+              <p>{tooltip}</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                disabled={disabled}
+                id={id}
+                variant="outline"
+                className={cn(
+                  "justify-start text-left font-normal",
+                  !date && "text-muted-foreground"
+                )}>
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {date ? (
+                  format(date, "MM/dd/yyyy hh:mm a")
+                ) : (
+                  <span>Pick a date</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={onDateChange}
+                initialFocus
+                footer={
+                  <Input
+                    type="time"
+                    className="w-max py-6"
+                    value={time}
+                    onChange={onTimeChange}
+                  />
+                }
+              />
+            </PopoverContent>
+          </Popover>
+        </TooltipProvider>
       </div>
     );
   };

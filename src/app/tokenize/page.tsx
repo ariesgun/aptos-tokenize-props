@@ -3,40 +3,32 @@
 // External packages
 import { useRef, useState } from "react";
 import { isAptosConnectWallet, useWallet } from "@aptos-labs/wallet-adapter-react";
-// import { Link, useNavigate } from "react-router-dom";
 // Internal utils
 import { aptosClient } from "@/utils/aptosClient";
-import { uploadCollectionData } from "@/utils/assetsUploader";
 // Internal components
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Header } from "@/components/Header";
-import { CREATOR_ADDRESS, IS_PROD } from "@/constants";
+import { CREATOR_ADDRESS } from "@/constants";
 import { WarningAlert } from "@/components/ui/warning-alert";
 import { UploadSpinner } from "@/components/UploadSpinner";
 import { LabeledInput } from "@/components/ui/labeled-input";
 import { DateTimeInput } from "@/components/ui/date-time-input";
 import { ConfirmButton } from "@/components/ui/confirm-button";
 // Entry functions
-import { createCollection } from "@/entry-functions/create_collection";
 import Link from "next/link";
 import Image from "next/image";
 import { Footer } from "@/components/Footer";
 import { createEntry } from "@/entry-functions/create_entry";
 import { uploadPropertyImages, uploadTokenMetadata } from "@/utils/assetsMetadataUploader";
-import { Textarea } from "@/components/ui/textarea";
 import { LabelTextArea } from "@/components/ui/labeled-textarea";
 
 function App() {
   // Wallet Adapter provider
   const aptosWallet = useWallet();
   const { account, wallet, signAndSubmitTransaction } = useWallet();
-
-  // If we are on Production mode, redierct to the public mint page
-  // const navigate = useNavigate();
-  // if (IS_PROD) navigate("/", { replace: true });
 
   // Collection data entered by the user on UI
   const [propertyName, setPropertyName] = useState<string>("");
@@ -48,7 +40,6 @@ function App() {
   const [targetFunding, setTargetFunding] = useState<number>(0);
   const [maximumSupply, setMaximumSupply] = useState<number>(0);
   const [marketingDescription, setMarketingDescription] = useState<string>("");
-  const [preMintAmount, setPreMintAmount] = useState<number>(0);
   const [publicMintStartDate, setPublicMintStartDate] = useState<Date>();
   const [publicMintStartTime, setPublicMintStartTime] = useState<string>();
   const [publicMintEndDate, setPublicMintEndDate] = useState<Date>();
@@ -100,12 +91,6 @@ function App() {
 
       // Set internal isUploading state
       setIsUploading(true);
-
-      // Upload collection files to Irys
-      // const { collectionName, collectionDescription, maxSupply, projectUri } = await uploadCollectionData(
-      //   aptosWallet,
-      //   files,
-      // );
 
       const { mainImageUri, imageUri } = await uploadPropertyImages(
         aptosWallet,
@@ -206,6 +191,18 @@ function App() {
             disabled={isUploading || !account}
             onChange={(e) => {
               setPropertyAddress(e.target.value);
+            }}
+          />
+
+          <LabeledInput
+            id="property-type"
+            required
+            type="text"
+            label="Property Type"
+            tooltip="Property type"
+            disabled={isUploading || !account}
+            onChange={(e) => {
+              setPropertyType(e.target.value);
             }}
           />
 
@@ -350,7 +347,7 @@ function App() {
                 tooltip="Individual token price"
                 disabled
                 value={maximumSupply > 0 ? targetFunding / maximumSupply : 0}
-                onChange={(e) => { }}
+                onChange={(_: any) => { }}
               />
             </div>
           </div>

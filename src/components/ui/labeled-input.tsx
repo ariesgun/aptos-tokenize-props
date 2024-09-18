@@ -29,7 +29,8 @@ export const LabeledInput: FC<{
             <TooltipTrigger>
               <Label htmlFor={id}>
                 {label} {required ? "" : "(optional)"}
-              </Label></TooltipTrigger>
+              </Label>
+            </TooltipTrigger>
             <TooltipContent className="ml-16 mb-4">
               <p>{tooltip}</p>
             </TooltipContent>

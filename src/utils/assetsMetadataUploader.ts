@@ -1,5 +1,4 @@
 import { checkIfFund, uploadFolder } from "@/utils/Irys";
-import { Description } from "@radix-ui/react-toast";
 
 const VALID_MEDIA_EXTENSIONS = ["png", "jpg", "jpeg", "gltf"];
 type TokenMetadata = {
@@ -8,17 +7,6 @@ type TokenMetadata = {
     image: string;
     decimals: number;
     properties: any;
-};
-type ImageAttribute = {
-    trait_type: string;
-    value: string;
-};
-type ImageMetadata = {
-    name: string;
-    description: string;
-    image: string;
-    external_url: string;
-    attributes: ImageAttribute[];
 };
 
 export const uploadPropertyImages = async (

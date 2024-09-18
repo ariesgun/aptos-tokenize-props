@@ -7,8 +7,8 @@ import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { FormEvent, useEffect, useState } from "react";
 import { Separator } from "../ui/separator";
 import { useGetTokenData } from "@/hooks/useGetTokensOfCollection";
-import { buyShares } from "@/entry-functions/buy_shares";
 import { aptosClient } from "@/utils/aptosClient";
+import { buyShares } from "@/entry-functions/buy_shares";
 
 interface MintCardProps {
     tokenId: string | undefined;
@@ -22,20 +22,15 @@ interface MintCardProps {
 
 export const MintCard: React.FC<MintCardProps> = ({
     tokenId,
-    propertyName,
-    propertyAddress,
-    propertyDescription,
     propertyMetadata,
     listingInfo,
 }) => {
-    // const { data } = useGetCollectionData();
     const { data, isLoading } = useGetTokenData(tokenId!);
     const queryClient = useQueryClient();
     const { account, signAndSubmitTransaction } = useWallet();
     const [nftCount, setNftCount] = useState(1);
 
     // const { userMintBalance = 0, collection, totalMinted = 0, maxSupply = 1 } = data ?? {};
-    let userMintBalance = 0;
     let totalMinted = data?.amount_v2 ?? 0
     let maxSupply = propertyMetadata?.properties?.maximum_supply;
     const mintUpTo = maxSupply - totalMinted;

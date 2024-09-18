@@ -2,7 +2,11 @@ import { AccountAddress } from "@aptos-labs/ts-sdk";
 import { aptosClient } from "@/utils/aptosClient";
 import { MODULE_ADDRESS } from "@/constants";
 
-export const getListingInfo = async ({ listing_obj_addr }) => {
+type GetListingInfoArguments = {
+    listing_obj_addr: string;
+};
+
+export const getListingInfo = async ({ listing_obj_addr }: GetListingInfoArguments) => {
     const registry = await aptosClient().view<[[any], ...any]>({
         payload: {
             function: `${AccountAddress.from(MODULE_ADDRESS!)}::controller::get_listing_info`,

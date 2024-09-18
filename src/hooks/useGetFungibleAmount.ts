@@ -1,12 +1,7 @@
-import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { useQuery } from "@tanstack/react-query";
 
 import { aptosClient } from "@/utils/aptosClient";
-import { getActiveOrNextMintStage } from "@/view-functions/getActiveOrNextMintStage";
-import { getMintStageStartAndEndTime } from "@/view-functions/getMintStageStartAndEndTime";
-import { getUserMintBalance } from "@/view-functions/getUserMintBalance";
 import { COLLECTION_ADDRESS } from "@/constants";
-import { getMintEnabled } from "@/view-functions/getMintEnabled";
 
 export interface Token {
   token_name: string;
@@ -33,18 +28,6 @@ interface MintQueryResult {
 }
 interface TokenQueryResult {
   current_fungible_asset_balances: Array<any>;
-}
-
-interface MintData {
-  maxSupply: number;
-  totalMinted: number;
-  uniqueHolders: number;
-  userMintBalance: number;
-  collection: Collection;
-  startDate: Date;
-  endDate: Date;
-  isMintActive: boolean;
-  isMintInfinite: boolean;
 }
 
 export function useGetFungibleAmountByOwner(owner_address: string, collection_address: string = COLLECTION_ADDRESS) {

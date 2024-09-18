@@ -1,8 +1,6 @@
-import { AccountAddress, GetCollectionDataResponse } from "@aptos-labs/ts-sdk";
+import { AccountAddress } from "@aptos-labs/ts-sdk";
 import { useState, useEffect } from "react";
 
-import { aptosClient } from "@/utils/aptosClient";
-import { getRegistry } from "@/view-functions/getRegistry";
 import { getListings } from "@/view-functions/getListings";
 import { getListingInfo } from "@/view-functions/getListingInfo";
 
@@ -63,33 +61,4 @@ const getListingsInfo = async (registry: [{ inner: string }]) => {
         }),
     );
     return objects;
-};
-
-const getObjects = async (registry: [{ inner: string }]) => {
-    const objects = await Promise.all(
-        registry.map(async (register: { inner: string }) => {
-            const formattedRegistry = AccountAddress.from(register.inner).toString();
-            const object = await aptosClient().getObjectDataByObjectAddress({
-                objectAddress: formattedRegistry,
-            });
-
-            return object;
-        }),
-    );
-    return objects;
-};
-
-const getCollections = async (objects: Array<string>) => {
-    const collections = await Promise.all(
-        objects.map(async (object: string) => {
-            const formattedObjectAddress = AccountAddress.from(object).toString();
-
-            const collection = await aptosClient().getCollectionDataByCreatorAddress({
-                creatorAddress: formattedObjectAddress,
-            });
-
-            return collection;
-        }),
-    );
-    return collections;
 };

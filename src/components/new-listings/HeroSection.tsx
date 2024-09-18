@@ -1,54 +1,30 @@
-import { FC, FormEvent, useState } from "react";
-import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { FC, useState } from "react";
 // Internal assets
 import Copy from "@/assets/icons/copy.svg";
 import ExternalLink from "@/assets/icons/external-link.svg";
 import Placeholder1 from "@/assets/placeholders/bear-1.png";
 // Internal utils
 import { truncateAddress } from "@/utils/truncateAddress";
-import { clampNumber } from "@/utils/clampNumber";
 import { formatDate } from "@/utils/formatDate";
-import { aptosClient } from "@/utils/aptosClient";
 // Internal hooks
 import { useGetCollectionData } from "@/hooks/useGetCollectionData";
 // Internal components
 import { Image } from "@/components/ui/image";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-// import { Socials } from "@/pages/Mint/components/Socials";
 // Internal constants
 import { NETWORK } from "@/constants";
 // Internal config
 import { config } from "@/config";
 // Internal enrty functions
-import { mintNFT } from "@/entry-functions/mint_nft";
 
 interface HeroSectionProps { }
 
-export const HeroSection: React.FC<HeroSectionProps> = () => {
+export const HeroSection: React.FC<HeroSectionProps> = ({
+
+}) => {
   const { data } = useGetCollectionData();
-  const queryClient = useQueryClient();
-  const { account, signAndSubmitTransaction } = useWallet();
-  const [nftCount, setNftCount] = useState(1);
 
-  const { userMintBalance = 0, collection, totalMinted = 0, maxSupply = 1 } = data ?? {};
-  const mintUpTo = Math.min(userMintBalance, maxSupply - totalMinted);
-
-  const mintNft = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!account || !data?.isMintActive) return;
-    if (!collection?.collection_id) return;
-
-    const response = await signAndSubmitTransaction(
-      mintNFT({ collectionId: collection.collection_id, amount: nftCount }),
-    );
-    await aptosClient().waitForTransaction({ transactionHash: response.hash });
-    queryClient.invalidateQueries();
-    setNftCount(1);
-  };
+  const { collection } = data ?? {};
 
   return (
     <section className="hero-container flex flex-col md:flex-row gap-6 px-4 max-w-screen-xl mx-auto w-full">

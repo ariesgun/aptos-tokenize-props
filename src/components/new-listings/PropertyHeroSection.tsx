@@ -1,30 +1,18 @@
-import { FC, FormEvent, useEffect, useState } from "react";
-import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { FC, useEffect, useState } from "react";
 // Internal assets
 import Copy from "@/assets/icons/copy.svg";
 import ExternalLink from "@/assets/icons/external-link.svg";
 import Placeholder1 from "@/assets/placeholders/bear-1.png";
 // Internal utils
 import { truncateAddress } from "@/utils/truncateAddress";
-import { clampNumber } from "@/utils/clampNumber";
 import { formatDate } from "@/utils/formatDate";
-import { aptosClient } from "@/utils/aptosClient";
 // Internal hooks
-import { useGetCollectionData } from "@/hooks/useGetCollectionData";
 // Internal components
 import { Image } from "@/components/ui/image";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-// import { Socials } from "@/pages/Mint/components/Socials";
 // Internal constants
 import { NETWORK } from "@/constants";
-// Internal config
-import { config } from "@/config";
-// Internal enrty functions
-import { mintNFT } from "@/entry-functions/mint_nft";
+
 
 interface PropertyHeroSectionProps {
   tokenId: string | undefined;
@@ -38,19 +26,10 @@ interface PropertyHeroSectionProps {
 export const PropertyHeroSection: React.FC<PropertyHeroSectionProps> = ({
   tokenId,
   propertyName,
-  propertyAddress,
-  propertyDescription,
   propertyMetadata,
   listingInfo
 }) => {
-  const { data } = useGetCollectionData();
-  const queryClient = useQueryClient();
-  const { account, signAndSubmitTransaction } = useWallet();
-  const [nftCount, setNftCount] = useState(1);
   const [additionalImages, setAdditionalImages] = useState<Array<any>>([])
-
-  const { userMintBalance = 0, collection, totalMinted = 0, maxSupply = 1 } = data ?? {};
-  const mintUpTo = Math.min(userMintBalance, maxSupply - totalMinted);
 
   const start_date = new Date(listingInfo?.start_date * 1000);
   const end_date = new Date(listingInfo?.end_date * 1000);
@@ -64,7 +43,7 @@ export const PropertyHeroSection: React.FC<PropertyHeroSectionProps> = ({
           res.json()
             .then((payloads) => {
               let images: Array<string> = []
-              for (const [key, value] of Object.entries(payloads.paths)) {
+              for (const [key, _] of Object.entries(payloads.paths)) {
                 if (!key.startsWith("main")) {
                   images.push(`${propertyMetadata.properties.additional_images}/${key}`)
                 }

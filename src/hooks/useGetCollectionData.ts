@@ -1,12 +1,7 @@
-import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { useQuery } from "@tanstack/react-query";
 
 import { aptosClient } from "@/utils/aptosClient";
-import { getActiveOrNextMintStage } from "@/view-functions/getActiveOrNextMintStage";
-import { getMintStageStartAndEndTime } from "@/view-functions/getMintStageStartAndEndTime";
-import { getUserMintBalance } from "@/view-functions/getUserMintBalance";
 import { COLLECTION_ADDRESS } from "@/constants";
-import { getMintEnabled } from "@/view-functions/getMintEnabled";
 
 export interface Token {
   token_name: string;
@@ -57,8 +52,7 @@ interface MintData {
   isMintInfinite: boolean;
 }
 
-export function useGetCollectionData(collection_address: string = COLLECTION_ADDRESS) {
-  const { account } = useWallet();
+export function useGetCollectionData(collection_address: string = COLLECTION_ADDRESS!) {
 
   return useQuery({
     queryKey: ["app-state", collection_address],
