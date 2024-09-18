@@ -325,8 +325,8 @@ export const OrdersTable: React.FC<{
           loading={isCancelingOrder}
         />
       </BaseModal>
-      <div className="flex justify-between mb-2">
-        <p className="font-jost text-md font-bold">Orders</p>
+      <div className="flex justify-between mb-4">
+        <p className="font-jost text-2xl font-bold">Orders</p>
       </div>
       <table
         className={"w-full" + (className ? ` ${className}` : "")}

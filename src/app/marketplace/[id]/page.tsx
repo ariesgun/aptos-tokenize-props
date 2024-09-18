@@ -35,7 +35,7 @@ let ChartContainer = dynamic(
   { ssr: false },
 );
 
-function App() {
+function MarketplaceDetail() {
   const { connected } = useWallet();
 
   const [marketData, setMarketData] = useState<Array<any>>([]);
@@ -72,62 +72,43 @@ function App() {
     <>
       <OrderEntryContextProvider>
         <Header />
-        <div className="flex items-center justify-center flex-col max-w-screen-2xl mx-auto">
+        <div className="flex items-center justify-center flex-col">
           {connected ? (
-            <>
-              <div className="flex flex-row gap-4 p-3 mx-auto">
-                <div className="basis-4/6 flex flex-col gap-2">
-                  <Card>
-                    <CardContent className="flex flex-col pt-6">
+            <Card>
+              <CardContent className="flex flex-col gap-10 pt-6">
+                <OrderEntry
+                  marketData={marketData[0]}
+                  onDepositWithdrawClick={() => setDepositWithdrawModalOpen(true)}
+                />
+                <OrderbookTable
+                  marketData={marketData[0]}
+                  data={orderbookData}
+                  isFetching={orderbookIsFetching}
+                  isLoading={orderbookIsLoading}
+                />
+                <OrdersTable
+                  market_id={marketData[0].market_id}
+                  marketData={marketData[0]}
+                />
+                {marketData && marketData.length &&
+                  <>
+                    <StatsBar allMarketData={marketData} selectedMarket={marketData[0]} />
+                    <main className="flex h-full min-h-[680px] w-full grow flex-col gap-3 md:flex-row">
+                      <div className=" flex grow flex-col border border-neutral-600 min-h-[680px] w-full">
+                        <div className="flex h-full min-h-[400px] md:min-h-[unset]">
+                          <ChartContainer {...defaultTVChartProps} />
+                        </div>
 
-                      {
-                        marketData && marketData.length &&
-                        <>
-                          <StatsBar allMarketData={marketData} selectedMarket={marketData[0]} />
-                          <div className="flex h-full min-h-[680px] w-full grow flex-col gap-3 md:flex-row">
-                            <div className=" flex flex-col w-full">
-                              <div className="flex h-full min-h-[400px]">
-                                <ChartContainer {...defaultTVChartProps} />
-                              </div>
-
-                              <div className="hidden h-[140px] tall:block">
-                                <DepthChart
-                                  marketData={marketData[0]} />
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      }
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="flex flex-col gap-4 pt-6">
-                      <OrderbookTable
-                        marketData={marketData[0]}
-                        data={orderbookData}
-                        isFetching={orderbookIsFetching}
-                        isLoading={orderbookIsLoading}
-                      />
-                      <OrdersTable
-                        market_id={marketData[0].market_id}
-                        marketData={marketData[0]}
-                      />
-                    </CardContent>
-                  </Card>
-                </div>
-                <div className="basis-2/6">
-                  <Card>
-                    <CardContent className="flex flex-col gap-10 pt-6">
-                      <OrderEntry
-                        marketData={marketData[0]}
-                        onDepositWithdrawClick={() => setDepositWithdrawModalOpen(true)}
-                      />
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-
-            </>
+                        <div className="hidden h-[140px] tall:block">
+                          <DepthChart
+                            marketData={marketData[0]} />
+                        </div>
+                      </div>
+                    </main>
+                  </>
+                }
+              </CardContent>
+            </Card>
           ) : (
             <CardHeader>
               <CardTitle>To get started Connect a wallet</CardTitle>
@@ -148,4 +129,4 @@ function App() {
   );
 }
 
-export default App;
+export default MarketplaceDetail;

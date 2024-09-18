@@ -174,8 +174,8 @@ export function OrderbookTable({
 
   return (
     <div className="flex grow flex-col">
-      <div className="flex justify-between">
-        <p className="font-jost text-md font-bold">Order Book</p>
+      <div className="flex justify-between mb-4">
+        <p className="font-jost text-2xl font-bold">Order Book</p>
       </div>
       <div className="flex h-[30px]">
         <div className="flex w-[50%] justify-between px-3 pl-4 pt-[7px]">

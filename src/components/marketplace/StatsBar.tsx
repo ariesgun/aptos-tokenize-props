@@ -193,8 +193,8 @@ export const StatsBar: React.FC<{
           please use a larger screen.
         </div>
       )}
-      <div className="hidden justify-between border-b border-neutral-600 px-[29.19px] py-3 md:flex lg:pr-[46.24px]">
-        <div className="flex overflow-x-clip whitespace-nowrap gap-6">
+      <div className="flex space-between w-full border-b border-neutral-600 pb-3">
+        <div className="flex overflow-x-clip whitespace-nowrap gap-8">
           {/* <button
             className="flex items-center outline-none "
             onClick={() => {
@@ -241,7 +241,7 @@ export const StatsBar: React.FC<{
             </p>
           </div>
           <div className="ml-[28.83px] hidden md:block">
-            <span className="font-roboto-mono text-xs font-light text-neutral-500">
+            <span className="font-roboto-mono text-sm font-light text-neutral-800">
               LAST PRICE <TokenSymbol symbol={quoteSymbol} />
             </span>
             <p className="font-roboto-mono text-xs font-light">
@@ -255,7 +255,7 @@ export const StatsBar: React.FC<{
             </p>
           </div>
           <div className="ml-4 hidden md:block lg:ml-[21.4px]">
-            <span className="font-roboto-mono text-xs font-light text-neutral-500">
+            <span className="font-roboto-mono text-sm font-light text-neutral-800">
               24H CHANGE
             </span>
             <p className="font-roboto-mono text-xs font-light">
@@ -290,7 +290,7 @@ export const StatsBar: React.FC<{
             </p>
           </div>
           <div className="ml-4 hidden md:block lg:ml-[28.83px]">
-            <span className="font-roboto-mono text-xs font-light uppercase text-neutral-500">
+            <span className="font-roboto-mono text-sm font-light uppercase text-neutral-800">
               24h high
             </span>
             <p className="font-roboto-mono text-xs font-light">
@@ -304,7 +304,7 @@ export const StatsBar: React.FC<{
             </p>
           </div>
           <div className="ml-4 hidden md:block lg:ml-[21.4px]">
-            <span className="font-roboto-mono text-xs font-light uppercase text-neutral-500">
+            <span className="font-roboto-mono text-sm font-light uppercase text-neutral-800">
               24h low
             </span>
             <p className="font-roboto-mono text-xs font-light">
@@ -318,7 +318,7 @@ export const StatsBar: React.FC<{
             </p>
           </div>
           <div className="ml-4 hidden md:block lg:ml-[21.4px]">
-            <span className="font-roboto-mono text-xs font-light text-neutral-500">
+            <span className="font-roboto-mono text-sm font-light text-neutral-800">
               24H VOLUME <TokenSymbol symbol={baseSymbol} />
             </span>
             <p className="font-roboto-mono text-xs font-light">
@@ -337,7 +337,7 @@ export const StatsBar: React.FC<{
             </p>
           </div>
           <div className="ml-4 hidden md:block lg:ml-5">
-            <span className="font-roboto-mono text-xs font-light text-neutral-500">
+            <span className="font-roboto-mono text-sm font-light text-neutral-800">
               24H VOLUME <TokenSymbol symbol={quoteSymbol} />
             </span>
             <p className="font-roboto-mono text-xs font-light">
@@ -358,9 +358,8 @@ export const StatsBar: React.FC<{
             </p>
           </div>
         </div>
-
-        {/* <SocialMediaIcons className={"my-auto hidden md:block"} /> */}
       </div>
+
       <div className="flex h-[120px] flex-shrink-0 flex-col justify-center border-b border-neutral-600 px-[29.28px] pr-[30.85px] md:hidden">
         <div className="flex w-full justify-between">
           <div className="flex h-fit items-center">
@@ -411,7 +410,7 @@ export const StatsBar: React.FC<{
         </div>
         <div className="mt-[5.73px] flex gap-4 pl-[0.07px]">
           <div className="flex gap-3">
-            <span className="font-roboto-mono text-xs font-light uppercase text-neutral-500">
+            <span className="font-roboto-mono text-xs font-light uppercase text-neutral-800">
               high
             </span>
             <span className="min-w-[4em] font-roboto-mono text-xs font-normal">
@@ -443,7 +442,7 @@ export const StatsBar: React.FC<{
             </span>
           </div>
           <div className="flex gap-3">
-            <span className="min-w-[75px] font-roboto-mono text-xs  font-light text-neutral-500">
+            <span className="min-w-[75px] font-roboto-mono text-xs  font-light text-neutral-800">
               VOL <TokenSymbol symbol={baseSymbol} />
             </span>
             <span className="min-w-[4em] font-roboto-mono text-xs font-normal">
@@ -464,7 +463,7 @@ export const StatsBar: React.FC<{
         </div>
         <div className="mt-1 flex gap-4 pl-[0.07px]">
           <div className="flex gap-3">
-            <span className="min-w-[28.81px] font-roboto-mono text-xs font-light uppercase text-neutral-500">
+            <span className="min-w-[28.81px] font-roboto-mono text-xs font-light uppercase text-neutral-800">
               {"low "}
             </span>
             <span className="min-w-[4em] font-roboto-mono text-xs font-normal">
@@ -496,7 +495,7 @@ export const StatsBar: React.FC<{
             </span>
           </div>
           <div className="flex gap-3">
-            <span className="min-w-[75px] font-roboto-mono text-xs font-light text-neutral-500">
+            <span className="min-w-[75px] font-roboto-mono text-xs font-light text-neutral-800">
               VOL <TokenSymbol symbol={quoteSymbol} />
             </span>
             <span className="min-w-[4em] font-roboto-mono text-xs font-normal">
