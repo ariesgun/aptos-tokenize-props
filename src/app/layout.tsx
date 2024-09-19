@@ -5,8 +5,6 @@ import { WrongNetworkAlert } from "@/components/WrongNetworkAlert";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
-import { Provider } from "react-redux";
-import { store } from "@/store/store";
 
 export const metadata: Metadata = {
   title: "NextJS Boilerplate Template",

@@ -33,7 +33,7 @@ export const ConnectWalletContext = createContext<
 
 const WalletItem: React.FC<
   {
-    wallet: Wallet;
+    wallet: Wallet | any;
     className?: string;
     onClick?: MouseEventHandler<HTMLButtonElement>;
   } & PropsWithChildren

@@ -18,7 +18,7 @@ export function Header() {
         <Link className={buttonVariants({ variant: "link" })} href={"/portfolio"}>
           My Portfolio
         </Link>
-        <Link className={cn(buttonVariants({ variant: "green" }), "mx-10")} href={"/tokenize"}>
+        <Link className={cn(buttonVariants({ variant: "secondary" }), "mx-10")} href={"/tokenize"}>
           Tokenize Property
         </Link>
       </div>

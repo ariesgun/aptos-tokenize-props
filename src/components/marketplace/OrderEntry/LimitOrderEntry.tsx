@@ -397,7 +397,7 @@ export const LimitOrderEntry: React.FC<{
       <hr className="my-4 border-neutral-600" />
       <div className="flex flex-col gap-4 md:mx-4 md:mb-4">
         <OrderEntryInfo label={`EST. FEE`} value={estimateFee} />
-        <ConnectedButton className="w-full">
+        <ConnectedButton>
           {isSufficient ? (
             <Button
               type="submit"

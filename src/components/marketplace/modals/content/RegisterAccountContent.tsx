@@ -8,6 +8,7 @@ import { ECONIA_ADDR } from "@/env";
 import { type ApiMarket } from "../../types/api";
 import { TypeTag } from "@/utils/TypeTag";
 import { Button } from "@/components/ui/button";
+import { useAptos } from "@/contexts/AptosContext";
 
 type RegisterAccountContentProps = {
   selectedMarket: ApiMarket;
@@ -108,7 +109,7 @@ export const RegisterAccountContent: React.FC<RegisterAccountContentProps> = ({
             onAccountCreated(res);
           }
         }}
-        variant="primary"
+      // variant="primary"
       >
         Create Account
       </Button>

@@ -1,34 +1,30 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { useQueryClient } from "@tanstack/react-query";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { useEffect, useState } from "react";
-// import { useGetCollectionData } from "@/hooks/useGetCollectionData";
-import { clampNumber } from "@/utils/clampNumber";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
-import { useGetTokenData } from "@/hooks/useGetTokensOfCollection";
 
 import Placeholder1 from "@/assets/placeholders/bear-1.png";
 
-export interface PropertyCardSectionProps {
+
+export interface PropertyMarketplaceCardProps {
     token_data: any;
     listing_info: any;
 }
 
-export function PropertyCardSection({ token_data, listing_info }: PropertyCardSectionProps) {
-    // const { data } = useGetCollectionData();
+export function PropertyMarketplaceCard({
+    token_data,
+    listing_info
+}: PropertyMarketplaceCardProps) {
     const queryClient = useQueryClient();
-    const { data } = useGetTokenData(token_data.token_data_id);
     const { account } = useWallet();
 
     useEffect(() => {
         queryClient.invalidateQueries();
     }, [account, queryClient]);
-
-    // const { userMintBalance = 0, collection, totalMinted = 35, maxSupply = 100 } = data ?? {};
 
     const [tokenMetadata, setTokenMetadata] = useState<any>({});
 
@@ -45,10 +41,6 @@ export function PropertyCardSection({ token_data, listing_info }: PropertyCardSe
 
         getTokenMetadata();
     }, [token_data]);
-
-
-    let totalMinted = data?.amount_v2 ?? 0;
-    let maxSupply = tokenMetadata?.properties?.property_value ?? 1000;
 
     return (
         <section>
@@ -82,26 +74,24 @@ export function PropertyCardSection({ token_data, listing_info }: PropertyCardSe
                                 <p className="text-xs font-bold text-center">Property Fair Value</p>
                                 <p className="text-xs font-normal text-secondary-text">$ {tokenMetadata.properties?.property_value}</p>
                             </div>
-                            <div className="flex flex-col gap-4 w-full items-center border border-indigo-800 rounded-lg py-4 shadow-md">
-                                <p className="text-xs font-bold text-center">Individual Token Price</p>
-                                <p className="text-xs font-normal text-secondary-text">$ {listing_info?.token_price}</p>
-                            </div>
                         </div>
 
                         <Separator className="my-2" />
 
-                        <div className="flex flex-col gap-2 w-full md:basis-1/3">
-                            <p className="text-md font-bold text-secondary-text">Funding Target</p>
-                            <p className="text-sm text-secondary-text">
-                                {clampNumber(totalMinted)} / {clampNumber(maxSupply)} Minted
-                            </p>
-                            <Progress value={(totalMinted / maxSupply) * 100} className="h-2" />
-                        </div>
-                        <Link href={`/new-listings/${token_data.token_data_id}`}>
-                            <Button className="w-full my-8 py-6 mb-0">
-                                <p className="text-md">See Details ➡️</p>
-                            </Button>
-                        </Link>
+                        {
+                            listing_info && listing_info.market_id ?
+                                <Link href={`/marketplace/${token_data.token_data_id}`}>
+                                    <Button className="w-full my-2 py-6 mb-0">
+                                        <p className="text-md">Buy / Sell 💸</p>
+                                    </Button>
+                                </Link>
+                                :
+                                <>
+                                    <Button disabled className="w-full my-2 py-6 mb-0">
+                                        <p className="text-md">Secondary Market Closed</p>
+                                    </Button>
+                                </>
+                        }
                     </div>
                 </CardContent>
             </Card>

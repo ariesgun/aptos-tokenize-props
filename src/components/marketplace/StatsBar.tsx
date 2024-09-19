@@ -17,9 +17,6 @@ import { toDecimalPrice, toDecimalQuote, toDecimalSize } from "@/utils/econia";
 import { plusMinus } from "@/utils/formatter";
 import { TypeTag } from "@/utils/TypeTag";
 
-import { DiscordIcon } from "./icons/DiscordIcon";
-import { MediumIcon } from "./icons/MediumIcon";
-import { TwitterIcon } from "./icons/TwitterIcon";
 import { MarketIconPair } from "./MarketIconPair";
 import { BaseModal } from "./modals/BaseModal";
 import { TokenSymbol } from "./TokenSymbol";
@@ -27,39 +24,6 @@ import { SelectMarketContent } from "./trade/DepositWithdrawModal/SelectMarketCo
 import { useRouter } from "next/navigation";
 
 const DEFAULT_TOKEN_ICON = "/tokenImages/default.svg";
-
-const SocialMediaIcons: React.FC<{ className?: string }> = ({ className }) => {
-  return (
-    <div className={className}>
-      <div className="flex">
-        <a
-          href="https://twitter.com/EconiaLabs"
-          target="_blank"
-          rel="noreferrer"
-          className="mx-3 aspect-square h-[18px] w-[18px] cursor-pointer hover:text-blue"
-        >
-          <TwitterIcon />
-        </a>
-        <a
-          href="https://discord.com/invite/Z7gXcMgX8A"
-          target="_blank"
-          rel="noreferrer"
-          className="mx-3 aspect-square h-[18px] w-[18px] cursor-pointer hover:text-blue"
-        >
-          <DiscordIcon />
-        </a>
-        <a
-          href="https://medium.com/econialabs"
-          target="_blank"
-          rel="noreferrer"
-          className="mx-3 aspect-square h-[18px] w-[18px] cursor-pointer hover:text-blue"
-        >
-          <MediumIcon />
-        </a>
-      </div>
-    </div>
-  );
-};
 
 export const StatsBar: React.FC<{
   allMarketData: ApiMarket[];
@@ -174,7 +138,7 @@ export const StatsBar: React.FC<{
       >
         <SelectMarketContent
           allMarketData={allMarketData}
-          onSelectMarket={(id, name) => {
+          onSelectMarket={(_id, name) => {
             setIsModalOpen(false);
             if (name == undefined) {
               toast.error("Selected market is undefined, please try again.");

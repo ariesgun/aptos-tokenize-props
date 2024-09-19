@@ -72,35 +72,25 @@ export const TradeHistoryTable: React.FC<{
           const timestamp = new Date(timestampString);
           const currentTime = new Date();
           const timeDifference = currentTime.getTime() - timestamp.getTime();
-          const hoursDifference = timeDifference / (1000 * 60 * 60);
-          if (hoursDifference < 24)
-            return (
-              <span className="whitespace-nowrap">
-                {new Date(timestampString).toLocaleString("en", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                  hour12: false,
-                })}
-              </span>
-            );
+          // const hoursDifference = timeDifference / (1000 * 60 * 60);
+
           return (
-            <div className="flex flex-col">
-              <span>
+            <div className="flex flex-row gap-2 justify-end">
+              <p>
                 {new Date(timestampString).toLocaleString("en", {
                   day: "2-digit",
                   month: "2-digit",
                   year: "2-digit",
                 })}
-              </span>
-              <span>
+              </p>
+              <p>
                 {new Date(timestampString).toLocaleString("en", {
                   hour: "2-digit",
                   minute: "2-digit",
                   second: "2-digit",
                   hour12: false,
                 })}
-              </span>
+              </p>
             </div>
           );
         },

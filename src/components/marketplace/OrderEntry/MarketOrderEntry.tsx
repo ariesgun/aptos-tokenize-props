@@ -237,7 +237,7 @@ export const MarketOrderEntry: React.FC<{
       <hr className="my-4 border-neutral-600" />
       <div className="mx-4 mb-4 flex flex-col gap-4">
         <OrderEntryInfo label={`EST. FEE `} value={estimateFee} />
-        <ConnectedButton className="w-full">
+        <ConnectedButton>
           {isSufficient ? (
             <Button
               type="submit"

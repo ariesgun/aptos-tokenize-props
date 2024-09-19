@@ -5,7 +5,7 @@ import {
   type MoveTypeInfo,
   type U64,
   type U128,
-} from "@/types/move";
+} from "./move";
 
 export type TabList<K> = {
   head: {

@@ -1,13 +1,13 @@
 import { ECONIA_ADDR } from "@/env";
-import { type ApiCoin } from "@/types/api";
-import { type MovePrimitive, type MoveTypeInfo } from "@/types/move";
+import { type ApiCoin } from "@/components/marketplace/types/api";
+import { type MovePrimitive, type MoveTypeInfo } from "@/components/marketplace/types/move";
 
 export class TypeTag {
   constructor(
     public addr: string,
     public module: string,
     public name: string,
-  ) {}
+  ) { }
 
   static fromApiCoin(apiCoin: ApiCoin) {
     return new TypeTag(

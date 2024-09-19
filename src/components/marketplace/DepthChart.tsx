@@ -110,11 +110,11 @@ export const DepthChart: React.FC<{
       labels: labels.filter(
         (l) => l >= (1 - OFFSET) * midMarket && l <= (1 + OFFSET) * midMarket,
       ),
-      bidData: bidData.filter((b, i) => {
+      bidData: bidData.filter((_, i) => {
         const l = labels[i];
         return l >= (1 - OFFSET) * midMarket && l <= (1 + OFFSET) * midMarket;
       }),
-      askData: askData.filter((a, i) => {
+      askData: askData.filter((_, i) => {
         const l = labels[i];
         return l >= (1 - OFFSET) * midMarket && l <= (1 + OFFSET) * midMarket;
       }),
@@ -202,7 +202,7 @@ export const DepthChart: React.FC<{
                   padding: 0,
                   minRotation: 0,
                   //eslint-disable-next-line
-                  callback: function (value, index, values) {
+                  callback: function (_value, index, _values) {
                     if (index % 3 === 2) {
                       return formatNumber(labels[index], 2) ?? "-";
                     } else {
@@ -278,9 +278,9 @@ const plugin = {
   afterInit: (
     chart: { corsair: { x: number; y: number } },
     //eslint-disable-next-line
-    args: any,
+    _args: any,
     //eslint-disable-next-line
-    opts: any,
+    _opts: any,
   ) => {
     chart.corsair = {
       x: 0,
@@ -311,7 +311,7 @@ const plugin = {
       ctx?: any;
     },
     //eslint-disable-next-line
-    args: any,
+    _args: any,
     //eslint-disable-next-line
     opts: { width: any; color: any; dash: any },
   ) => {

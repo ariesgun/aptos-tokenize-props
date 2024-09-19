@@ -1,4 +1,4 @@
-import { type PriceLevel } from "@/types/global";
+import { type PriceLevel } from "@/components/marketplace/types/global";
 
 /**
  * Retrieves the language preference of the user.

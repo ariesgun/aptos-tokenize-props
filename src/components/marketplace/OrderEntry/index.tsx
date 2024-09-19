@@ -9,7 +9,7 @@ import { MarketOrderEntry } from "./MarketOrderEntry";
 
 
 export const OrderEntry: React.FC<{
-  marketData?: ApiMarket;
+  marketData: ApiMarket;
   defaultSide?: "buy" | "sell";
   onDepositWithdrawClick?: () => void;
 }> = ({ marketData, defaultSide = "buy", onDepositWithdrawClick }) => {
