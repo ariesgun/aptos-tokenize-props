@@ -1,6 +1,7 @@
 "use client";
 
 import { Header } from "@/components/Header";
+import { Button } from "@/components/ui/button";
 import { DepthChart } from "@/components/marketplace/DepthChart";
 import { MarketDetail } from "@/components/marketplace/MarketDetail";
 import { OrderbookTable } from "@/components/marketplace/OrderBookTable";
@@ -22,6 +23,7 @@ import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
+import { Separator } from "@/components/ui/separator";
 
 
 let ChartContainer = dynamic(
@@ -158,11 +160,28 @@ export default function Page({ params }: { params: { id: string } }) {
                     </div>
                     <div className="basis-2/6">
                       <Card>
-                        <CardContent className="flex flex-col gap-10 pt-6">
+                        <CardHeader>
+                          <CardTitle>
+                            <p className="font-bold text-xl">Order Entry</p>
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex flex-col gap-4">
                           <OrderEntry
                             marketData={marketData[0]}
                             onDepositWithdrawClick={() => setDepositWithdrawModalOpen(true)}
                           />
+                          <Separator />
+                          <Button
+                            type="submit"
+                            // variant="blue"
+                            className="w-full whitespace-nowrap py-[10px] uppercase !leading-5 tracking-[0.32px]"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setDepositWithdrawModalOpen(true);
+                            }}
+                          >
+                            Deposit / Withdraw Fund
+                          </Button>
                         </CardContent>
                       </Card>
                     </div>
