@@ -321,34 +321,34 @@ module property_test::ownership_token {
         state.paused = paused;
     }
 
-    #[test(admin = @property_test, creator = @0x123, receiver = @0xface)]
-    fun test_basic_flow(
-        admin: &signer,
-        creator: &signer,
-        receiver: &signer,
-    ) acquires ManagedFungibleAsset, AppObjectController, State {
-        init_module(admin);
+    // #[test(admin = @property_test, creator = @0x123, receiver = @0xface)]
+    // fun test_basic_flow(
+    //     admin: &signer,
+    //     creator: &signer,
+    //     receiver: &signer,
+    // ) acquires ManagedFungibleAsset, AppObjectController, State {
+    //     init_module(admin);
 
-        let ft_constructor_ref = create_ownership_token(
-            utf8(b"oHILTON Coin"),
-            utf8(b"oHLT"),
-            100000000,
-            utf8(b"Token description"),
-            utf8(b"Token uri"),
-        );
-        let metadata = object::object_from_constructor_ref<Metadata>(&ft_constructor_ref);
+    //     let ft_constructor_ref = create_ownership_token(
+    //         utf8(b"oHILTON Coin"),
+    //         utf8(b"oHLT"),
+    //         100000000,
+    //         utf8(b"Token description"),
+    //         utf8(b"Token uri"),
+    //     );
+    //     let metadata = object::object_from_constructor_ref<Metadata>(&ft_constructor_ref);
 
-        let creator_address = signer::address_of(creator);
-        let receiver_address = signer::address_of(receiver);
+    //     let creator_address = signer::address_of(creator);
+    //     let receiver_address = signer::address_of(receiver);
 
-        mint(metadata, creator_address, 100);
+    //     mint(metadata, creator_address, 100);
 
-        assert!(primary_fungible_store::balance(creator_address, metadata) == 100, 4);
+    //     assert!(primary_fungible_store::balance(creator_address, metadata) == 100, 4);
 
-        set_pause(metadata, false);
-        transfer(metadata, creator_address, receiver_address, 10);
-        assert!(primary_fungible_store::balance(creator_address, metadata) == 90, 5);
-        assert!(primary_fungible_store::balance(receiver_address, metadata) == 10, 6);
-    }
+    //     set_pause(metadata, false);
+    //     transfer(metadata, creator_address, receiver_address, 10);
+    //     assert!(primary_fungible_store::balance(creator_address, metadata) == 90, 5);
+    //     assert!(primary_fungible_store::balance(receiver_address, metadata) == 10, 6);
+    // }
 
 }

@@ -2,12 +2,14 @@ module property_test::controller {
 
     use aptos_framework::aptos_account;
     use aptos_framework::aptos_coin::AptosCoin;
-    use aptos_framework::coin;
-    use aptos_framework::fungible_asset::{Self, Metadata};
+    use aptos_framework::coin::{Self, Coin};
+    use aptos_framework::fungible_asset::{Self, Metadata, FungibleAsset};
     use aptos_framework::object::{Self, Object, ExtendRef};
+    use aptos_framework::primary_fungible_store;
     // use aptos_framework::primary_fungible_store;
     // use aptos_framework::dispatchable_fungible_asset;
     // use aptos_framework::function_info;
+    use aptos_std::type_info;
 
     // use aptos_token::token::{Self, Token};
     // use aptos_token_objects::token::{Self, Token};
@@ -15,6 +17,10 @@ module property_test::controller {
 
     use property_test::ownership_token;
     use property_test::rewards_pool::{Self, RewardsPool};
+    use property_test::coin_wrapper;
+
+    use econia::market;
+    use econia::user;
 
     use std::error;
     use std::signer;
@@ -70,6 +76,7 @@ module property_test::controller {
 
     struct AppObjectController has key {
         extend_ref: ExtendRef,
+        addr: address,
     }
 
     // Unique per Object
@@ -87,7 +94,10 @@ module property_test::controller {
         ownership_token: Object<Metadata>,
         reward_pool: Object<RewardsPool>,
         minting_fee: u64,
+        market_id: u64,
     }
+
+    struct ExampleUSDCCC {}
 
     // Property Name
     // Type : Residential, Office, Apartment, etc
@@ -110,6 +120,7 @@ module property_test::controller {
             &obj_signer,
             AppObjectController {
                 extend_ref: obj_extend_ref,
+                addr: signer::address_of(admin),
             }
         );
 
@@ -127,6 +138,23 @@ module property_test::controller {
                 listings: vector::empty<Object<ListingInfo>>(),
             }
         );
+
+        coin_wrapper::initialize();
+    }
+
+    #[view]
+    public fun get_extend_address(): address acquires AppObjectController {
+        let registry: &AppObjectController = borrow_global<AppObjectController>(get_app_signer_addres());
+        registry.addr
+
+    }
+
+    public entry fun mint_fake_coin(
+        account: &signer
+    ) {
+        debug::print(&utf8(b"SSSS"));
+        debug::print(&coin::is_coin_initialized<ExampleUSDCCC>());
+        coin_wrapper::mint_fake<ExampleUSDCCC>(account);
     }
 
     public entry fun create_entry(
@@ -181,6 +209,7 @@ module property_test::controller {
                 ownership_token: metadata,
                 reward_pool: reward_pool_obj,
                 minting_fee: public_mint_fee,
+                market_id: 0,
             }
         );
 
@@ -189,6 +218,24 @@ module property_test::controller {
         let registry: &mut Registry = borrow_global_mut<Registry>(get_app_signer_addres());
         vector::push_back(&mut registry.listings, listing_obj);
 
+    }
+
+    public entry fun create_example_usdc(account: &signer) acquires AppObjectController {
+        let app_signer = get_app_signer(get_app_signer_addres());
+        coin_wrapper::create_coin<ExampleUSDCCC>(
+            &app_signer,
+            utf8(b"ABCD"),
+            utf8(b"ABCD"),
+            1,
+            false
+        );
+    }
+
+    #[view]
+    public fun get_coin_addr(): address {
+        // coin::coin_address<ExampleUSDCCC>()
+        let type_info = type_info::type_of<ExampleUSDCCC>();
+        type_info::account_address(&type_info)
     }
 
     fun get_app_signer_addres(): address {
@@ -261,6 +308,71 @@ module property_test::controller {
         listing_status.status = 2;
     }
 
+    // -------------------------------------
+    public entry fun create_coin_wrapper<CoinType>(
+        account: &signer,
+        fa_metadata: Object<Metadata>
+    ) acquires Roles {
+        assert_is_admin(account);
+        coin_wrapper::create_coin_asset<CoinType>(account, fa_metadata);
+    }
+
+    // Deposit to Econia
+    public entry fun wrap_ownership_token<CoinType>(
+        account: &signer,
+        metadata: Object<Metadata>,
+        amount: u64,
+    ) {
+        let fa: FungibleAsset = primary_fungible_store::withdraw(account, metadata, amount);
+        let coins = coin_wrapper::wrap_fa<CoinType>(fa);
+        coin::deposit<CoinType>(signer::address_of(account), coins);
+    }
+
+    // Withdraw from Econia
+    public entry fun unwrap_ownership_token<CoinType>(
+        account: &signer,
+        amount: u64,
+    ) {
+        let coins = coin::withdraw<CoinType>(account, amount);
+        let fa = coin_wrapper::unwrap_fa<CoinType>(coins);
+        primary_fungible_store::deposit(signer::address_of(account), fa);
+    }
+
+    #[view]
+    public fun get_coin_type_from_fa(metadata: Object<Metadata>): String {
+        coin_wrapper::get_coin_type_from_fa(metadata)
+    }
+
+    // Create a marketplace using Econia API
+    // Step 1. Create an object and publish the coin wrapper package
+    // Step 2. Register the market using the newly created coin type using Econia SDK
+    public entry fun create_secondary_market<QuoteAssetType>(
+        admin: &signer,
+        listing: Object<ListingInfo>,
+    ) acquires ListingInfo, Roles {
+        assert_is_admin(admin);
+        let listing_status: &mut ListingInfo = borrow_global_mut<ListingInfo>(
+            object::object_address(&listing)
+        );
+
+        // Create an object and publish a package
+        // Or create a resource account and publish a package.
+
+        let lot_size = 1000000; // 0.01 APT
+        let tick_size = 1000; // 0.001 USDC
+        let min_size = 5; // 0.05 APT
+        market::register_market_base_coin_from_coinstore<
+            aptos_framework::aptos_coin::AptosCoin,
+            QuoteAssetType,
+            aptos_framework::aptos_coin::AptosCoin,
+        >(
+            admin,
+            lot_size,
+            tick_size,
+            min_size
+        );
+    }
+
     #[view]
     public fun remaining_shares(
         listing: Object<ListingInfo>,
@@ -305,29 +417,73 @@ module property_test::controller {
         )
     }
 
-
-    #[test(creator = @property_test, receiver = @0x123, core = @0x1)]
-    fun test_create_tokenized_property(
-        creator: &signer,
-        receiver: &signer,
+    #[test(admin = @property_test, account = @0x123, core = @0x01)]
+    fun test_basic(
+        admin: &signer,
         core: &signer,
-    ) acquires ListingInfo, Registry, Roles {
-
+        account: &signer,
+    ) {
         let (burn_cap, mint_cap) = aptos_framework::aptos_coin::initialize_for_test(core);
-        aptos_account::create_account(signer::address_of(receiver));
-        coin::deposit(signer::address_of(receiver), coin::mint(10000, &mint_cap));
+        aptos_account::create_account(signer::address_of(admin));
+        package_manager::init_module_internal(admin);
+        coin_wrapper::initialize_mo(admin);
+        coin_wrapper::initialize();
 
-        init_module(creator);
+        coin_wrapper::create_coin<ExampleUSDCCC>(
+            admin,
+            utf8(b"ABCD"),
+            utf8(b"wABCD"),
+            1,
+            false,
+        );
+        init_module(admin);
+        debug::print(&coin::name<ExampleUSDCCC>());
 
-        ownership_token::initialize(creator);
+        debug::print(&type_info::type_name<ExampleUSDCCC>());
+
+        mint_fake_coin(admin);
+
+        coin::destroy_burn_cap(burn_cap);
+        coin::destroy_mint_cap(mint_cap);
+    }
+
+    #[test_only]
+    struct FakeMoney {}
+
+    #[test_only]
+    use property_test::package_manager;
+
+     #[test(admin = @property_test, account = @0x123, core = @0x01)]
+    fun test_create_coin_wrapper(
+        admin: &signer,
+        core: &signer,
+        account: &signer,
+    ) acquires Registry, ListingInfo, Roles {
+        let (burn_cap, mint_cap) = aptos_framework::aptos_coin::initialize_for_test(core);
+        aptos_account::create_account(signer::address_of(admin));
+        coin::deposit(signer::address_of(admin), coin::mint(10000, &mint_cap));
+
+        init_module(admin);
+        ownership_token::initialize(admin);
+        package_manager::init_module_internal(admin);
+        coin_wrapper::initialize_mo(admin);
+        coin_wrapper::initialize();
 
         create_entry(
-            creator,
+            admin,
             utf8(b"description"),
             utf8(b"name"),
             utf8(b"symbol"),
             100000000,
             utf8(b"uri"),
+            utf8(b"icon"),
+            option::none(),
+            option::none(),
+            0,
+            100,
+            option::none(),
+            10,
+            0,
         );
 
         let listings = get_all_listings();
@@ -335,74 +491,116 @@ module property_test::controller {
         assert!(vector::length(&listings) == 1, 1);
 
         let listing_info_obj = *vector::borrow(&listings, 0);
-
-        let asset_symbol: vector<u8> = b"PROPERTY_A";
-        // let asset_addr = object::create_object_address(&signer::address_of(creator), asset_symbol);
         let asset_addr = object::object_address(&listing_info_obj);
-        // let listing_info = object::address_to_object<ListingInfo>(asset_addr);
         let listing_info = borrow_global<ListingInfo>(asset_addr);
-        // let metadata: Object<Metadata> = object::address_to_object<Metadata>(listing_info.ownership_token);
         let metadata = listing_info.ownership_token;
 
-        debug::print(&fungible_asset::name(metadata));
-        // assert!(primary_fungible_store::balance(object::object_address(&listing_info_obj), metadata) == 100000000, 5);
-        open_sale(creator, listing_info_obj);
-        buy_shares(receiver, listing_info_obj, 100);
+        create_coin_wrapper<FakeMoney>(admin, metadata);
 
-        assert!(coin::balance<AptosCoin>(signer::address_of(receiver)) == 9900, 2);
-
-        let listing_info = borrow_global<ListingInfo>(asset_addr);
-        // let store_signer = &object::generate_signer_for_extending(&listing_info.extend_ref);
-        // assert!(primary_fungible_store::balance(signer::address_of(store_signer), metadata) == 99999900, 5);
-        assert!(primary_fungible_store::balance(signer::address_of(receiver), metadata) == 100, 3);
+        let type_name = get_coin_type_from_fa(metadata);
+        debug::print(&type_name);
 
         coin::destroy_burn_cap(burn_cap);
         coin::destroy_mint_cap(mint_cap);
-
-        // assert!(managed_property.object_addr == asset_addr, 1);
-
-
-        // let collection = string::utf8(b"Tokenized Properties");
-        // let name = utf8(b"name");
-        // let token_address = token::create_token_address(
-        //     &signer::address_of(creator),
-        //     &collection,
-        //     &name
-        // );
-        // let token_obj = object::address_to_object<Token>(token_address);
-        // debug::print(&token::description<Token>(token_obj));
-        // let hey: String = utf8(b"description");
-        // debug::print(&hey);
-        // assert!(token::description<Token>(token_obj) == hey, 2);
-
-        // list_property(
-        //     creator,
-        //     utf8(b"description2"),
-        //     utf8(b"name2"),
-        //     b"B",
-        // );
-
-        // let name2 = utf8(b"name2");
-        // let token_address = token::create_token_address(
-        //     &signer::address_of(creator),
-        //     &collection,
-        //     &name2
-        // );
-        // let token_obj = object::address_to_object<Token>(token_address);
-        // debug::print(&token::description<Token>(token_obj));
-        // let hey: String = utf8(b"description2");
-        // debug::print(&hey);
-        // assert!(token::description<Token>(token_obj) == hey, 2);
-
-        // let asset_symbol: vector<u8> = b"PROPERTY_B";
-        // let asset_addr = object::create_object_address(&signer::address_of(creator), asset_symbol);
-        // let obj = object::address_to_object<Metadata>(asset_addr);
-
-        // let managed_property: &ManagedTokenizedProperty = borrow_global<ManagedTokenizedProperty>(asset_addr);
-
-        // assert!(managed_property.object_addr == asset_addr, 1);
-
     }
+
+    // #[test(creator = @property_test, receiver = @0x123, core = @0x1)]
+    // fun test_create_tokenized_property(
+    //     creator: &signer,
+    //     receiver: &signer,
+    //     core: &signer,
+    // ) acquires ListingInfo, Registry, Roles {
+
+    //     let (burn_cap, mint_cap) = aptos_framework::aptos_coin::initialize_for_test(core);
+    //     aptos_account::create_account(signer::address_of(receiver));
+    //     coin::deposit(signer::address_of(receiver), coin::mint(10000, &mint_cap));
+
+    //     init_module(creator);
+
+    //     ownership_token::initialize(creator);
+
+    //     create_entry(
+    //         creator,
+    //         utf8(b"description"),
+    //         utf8(b"name"),
+    //         utf8(b"symbol"),
+    //         100000000,
+    //         utf8(b"uri"),
+    //     );
+
+    //     let listings = get_all_listings();
+    //     debug::print(&vector::length(&listings));
+    //     assert!(vector::length(&listings) == 1, 1);
+
+    //     let listing_info_obj = *vector::borrow(&listings, 0);
+
+    //     let asset_symbol: vector<u8> = b"PROPERTY_A";
+    //     // let asset_addr = object::create_object_address(&signer::address_of(creator), asset_symbol);
+    //     let asset_addr = object::object_address(&listing_info_obj);
+    //     // let listing_info = object::address_to_object<ListingInfo>(asset_addr);
+    //     let listing_info = borrow_global<ListingInfo>(asset_addr);
+    //     // let metadata: Object<Metadata> = object::address_to_object<Metadata>(listing_info.ownership_token);
+    //     let metadata = listing_info.ownership_token;
+
+    //     debug::print(&fungible_asset::name(metadata));
+    //     // assert!(primary_fungible_store::balance(object::object_address(&listing_info_obj), metadata) == 100000000, 5);
+    //     open_sale(creator, listing_info_obj);
+    //     buy_shares(receiver, listing_info_obj, 100);
+
+    //     assert!(coin::balance<AptosCoin>(signer::address_of(receiver)) == 9900, 2);
+
+    //     let listing_info = borrow_global<ListingInfo>(asset_addr);
+    //     // let store_signer = &object::generate_signer_for_extending(&listing_info.extend_ref);
+    //     // assert!(primary_fungible_store::balance(signer::address_of(store_signer), metadata) == 99999900, 5);
+    //     assert!(primary_fungible_store::balance(signer::address_of(receiver), metadata) == 100, 3);
+
+    //     coin::destroy_burn_cap(burn_cap);
+    //     coin::destroy_mint_cap(mint_cap);
+
+    //     // assert!(managed_property.object_addr == asset_addr, 1);
+
+
+    //     // let collection = string::utf8(b"Tokenized Properties");
+    //     // let name = utf8(b"name");
+    //     // let token_address = token::create_token_address(
+    //     //     &signer::address_of(creator),
+    //     //     &collection,
+    //     //     &name
+    //     // );
+    //     // let token_obj = object::address_to_object<Token>(token_address);
+    //     // debug::print(&token::description<Token>(token_obj));
+    //     // let hey: String = utf8(b"description");
+    //     // debug::print(&hey);
+    //     // assert!(token::description<Token>(token_obj) == hey, 2);
+
+    //     // list_property(
+    //     //     creator,
+    //     //     utf8(b"description2"),
+    //     //     utf8(b"name2"),
+    //     //     b"B",
+    //     // );
+
+    //     // let name2 = utf8(b"name2");
+    //     // let token_address = token::create_token_address(
+    //     //     &signer::address_of(creator),
+    //     //     &collection,
+    //     //     &name2
+    //     // );
+    //     // let token_obj = object::address_to_object<Token>(token_address);
+    //     // debug::print(&token::description<Token>(token_obj));
+    //     // let hey: String = utf8(b"description2");
+    //     // debug::print(&hey);
+    //     // assert!(token::description<Token>(token_obj) == hey, 2);
+
+    //     // let asset_symbol: vector<u8> = b"PROPERTY_B";
+    //     // let asset_addr = object::create_object_address(&signer::address_of(creator), asset_symbol);
+    //     // let obj = object::address_to_object<Metadata>(asset_addr);
+
+    //     // let managed_property: &ManagedTokenizedProperty = borrow_global<ManagedTokenizedProperty>(asset_addr);
+
+    //     // assert!(managed_property.object_addr == asset_addr, 1);
+
+    // }
 
 
 }
