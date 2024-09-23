@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@aptos-labs/ts-sdk": "^1.26.0",
-    "@aptos-labs/wallet-adapter-react": "^3.5.0",
+    "@aptos-labs/wallet-adapter-react": "^3.7.0",
     "@headlessui/react": "^2.1.8",
     "@heroicons/react": "^2.1.5",
     "@irys/sdk": "^0.2.1",

@@ -28,16 +28,26 @@ export const useCoinBalance = (
 ) => {
   const coinInfo = useCoinInfo(coinTypeTag);
   const userAddr = userAddrInput ? AccountAddress.from(userAddrInput) : null;
+
+  console.log("Coin balance ", coinTypeTag, userAddrInput)
+
   return useQuery({
     queryKey: CoinBalanceQueryKey(coinTypeTag, userAddr),
     enabled: !!coinInfo.data,
     queryFn: async () => {
+      console.log("CCC", coinTypeTag, userAddr)
       if (!userAddr || !coinTypeTag) return null;
-      const coinStore = await aptosClient().getAccountResource<CoinStore>({
-        accountAddress: userAddr,
-        resourceType: `0x1::coin::CoinStore<${coinTypeTag.toString()}>`,
-      });
-      return fromRawCoinAmount(coinStore.coin.value, coinInfo.data!.decimals);
+      try {
+        const coinStore = await aptosClient().getAccountResource<CoinStore>({
+          accountAddress: userAddr,
+          resourceType: `0x1::coin::CoinStore<${coinTypeTag.toString()}>`,
+        });
+        console.log("Coin Store", coinStore)
+        return fromRawCoinAmount(coinStore.coin.value, coinInfo.data!.decimals);
+      } catch (e) {
+        console.log("Unable to query Coin balance", e)
+        return 0;
+      }
     },
   });
 };

@@ -10,6 +10,7 @@ import { OrdersTable } from "@/components/marketplace/OrderTable";
 import { StatsBar } from "@/components/marketplace/StatsBar";
 import { TradeHistoryTable } from "@/components/marketplace/TradeHistoryTable";
 import { DepositWithdrawFlowModal } from "@/components/marketplace/modals/flows/DepositWithdrawFlowModal";
+import { WrapUnwrapFlowModal } from "@/components/marketplace/modals/flows/WrapUnwrapFlowModal";
 import { ApiMarket } from "@/components/marketplace/types/api";
 // Internal Components
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,6 +49,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [tokenMetadata, setTokenMetadata] = useState<any>();
   const [listingInfo, setListingInfo] = useState<any>();
   const [depositWithdrawModalOpen, setDepositWithdrawModalOpen] = useState<boolean>(false);
+  const [wrapUnwrapModalOpen, setWrapUnwrapModalOpen] = useState<boolean>(false);
 
   const {
     data: orderbookData,
@@ -177,6 +179,17 @@ export default function Page({ params }: { params: { id: string } }) {
                             className="w-full whitespace-nowrap py-[10px] uppercase !leading-5 tracking-[0.32px]"
                             onClick={(e) => {
                               e.preventDefault();
+                              setWrapUnwrapModalOpen(true);
+                            }}
+                          >
+                            Wrap / Unwrap Property Token
+                          </Button>
+                          <Button
+                            type="submit"
+                            // variant="blue"
+                            className="w-full whitespace-nowrap py-[10px] uppercase !leading-5 tracking-[0.32px]"
+                            onClick={(e) => {
+                              e.preventDefault();
                               setDepositWithdrawModalOpen(true);
                             }}
                           >
@@ -204,7 +217,14 @@ export default function Page({ params }: { params: { id: string } }) {
         }}
         allMarketData={marketData}
       />
-
+      <WrapUnwrapFlowModal
+        selectedMarket={marketData[0]}
+        isOpen={wrapUnwrapModalOpen}
+        onClose={() => {
+          setWrapUnwrapModalOpen(false);
+        }}
+        allMarketData={marketData}
+      />
     </>
   );
 }

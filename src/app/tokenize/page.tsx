@@ -400,7 +400,7 @@ function App() {
 
           <ConfirmButton
             title="Create Collection"
-            className="self-start mt-8"
+            className="self-start mt-8 bg-black"
             onSubmit={onCreateCollection}
             // disabled={
             //   !account ||

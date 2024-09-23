@@ -51,9 +51,9 @@ module property_test::controller {
     const ASSET_SYMBOL: vector<u8> = b"oHILTON";
     const APP_OBJECT_SEED: vector<u8> = b"PROP_CONTROLLER";
 
-    const METADATA_SERIALIZED: vector<u8> = x"1070726f70657274792d746573742d31300100000000000000004036373338424338414433394632353433433844323846313634444432344533454439333732324642344530354630454531464339393434343643313135443530fc011f8b08000000000002ff4d8ecd6ec3201084ef3c45e4bb6df02fa9944355a9b73e81e5c302eb18a50604d86ddfbea026556e3bb3b3b3dfe440dee08a3331b0e1e9722a9cb70e7dfc29238658325a90037dd0d6e425ab68951cd8e36a7d48ce34133281521e43c030930f6bcd9bd5e652d06fce7ade702617604d2f4635324129b6e319186b04031cf1dc8876e8606870e11419a71db44c0d5cf2ae9745aa5678944ff5d97068141aa93154af2edaf0ee13f997f5b7995c75cc946b8c2ebcd47592eb2e2a69b71a72b2fc0411eea3b41eab142888c7231f6da08dc1a4c32e94f6d9fa4b6ef6c07a793cb99fffeb07e433d74c7e017e9d37db57010000010c6d6f6f6e5f636f696e5f3130af021f8b08000000000002ff5d91416b84301085effe8a2985a2b0607b1db74ba1e7d2c31e4b09591d25ad26928c9545fcef8d31bbb59b8be3739c79df4b9ee31d1e3a6374d2996a6809de7cfd6a94465c5451fa523c3dc29424e04f9ec3e00864cfc689daca8e4663bf11cde98b4a469c8ed4d63b780faf73f1efa7de9a9e2c9f0593f3ada5d16c4ddb922d42d7d2e2b842e4734f42e9dadce88eadd20de2313ce36c2f0e255f5dc304f3faa11e3428ad58ac5ca9235d91457870aad164334f04f1787f2d31780621abca9273f00c17a2a808366295d2975a8a8e58569265566ca7fc21793c4b9269cd6fb4b2f7e8fb8bcb4374b3dbee8ca3a2fdfb8f1f45e367a8fbe1d4aa321035c422e4a37df46986b086b181b9a617835c1a378bb3b8644ef27cefef7eb9e45fcca754bb0502000000000300000000000000000000000000000000000000000000000000000000000000010e4170746f734672616d65776f726b00000000000000000000000000000000000000000000000000000000000000010b4170746f735374646c696200000000000000000000000000000000000000000000000000000000000000010a4d6f76655374646c696200";
+    const METADATA_SERIALIZED: vector<u8> = x"1270726f70732d636f696e2d777261707065720100000000000000004037393546324231413237334343424242334133313731344543303546443933324138453036433746303035354430323138323038324141383333424334344143c6011f8b08000000000002ff4d4e4baec2300cdcfb1428fba6bced93582024aec0a28a909b181a41e3c84ecbf549c447ec3c3fcf0c19fd0dafe420e14c9bddc664e1ac9de798ba8760ce240656128d9c9afc67b7766b009732b16865060730600842aaa40e4eafd0a13ed899b3a962a0b5fb313422530a947c24b5fb5c588f52db1f2c3707d7585acf544ad6ffbeaf705a46eb79eeb139bb3b8efa3e3d0bd96a3020b4b6d08c3125aa5897314469d4cb39f34afde553f28e7ff167e4ef2e074f16762a151b010000011170726f705f777261707065725f636f696eb6021f8b08000000000002ff5d92316bc330108577ff8a2b856243c0fb250d85cea543860ea508c53e07b5b6244ee78610f2df2bcb4aeb468ba4a7d3e9bd0fd535dee17670ce16836bc79ee08db5f7c4cfce5844cfceabe3aca8264a702e0a88a3ae610c04da8b0baa633dd0d1f117a2db7f522388e71df5dd0a5ed3f6b2fe77696a4a2c2725146269e3acb0eb7be275aa9a4a82b48872f2a48ceddc8d1e848d3d20eed29c7b47716c64e91ece7099cfbad182b146d41cb10c645b628487600e96b88aa1208f68b127811843e9b6650a011ee11a2a2b4a9c9aa5f2a9d36a20d1ad165dad975dfe52c5844c5a28f1bbc2dcbc44e493cb6d76b35abe995b65fbf7efdf868e1f69edc77d6f9a94e840a212221be99715c2cc6311e617606639156e1684b66595dfb91475bd893f61fa083f080b57fe1302000000000300000000000000000000000000000000000000000000000000000000000000010e4170746f734672616d65776f726b00000000000000000000000000000000000000000000000000000000000000010b4170746f735374646c696200000000000000000000000000000000000000000000000000000000000000010a4d6f76655374646c696200";
     const CODE: vector<vector<u8>> = vector[
-        x"a11ceb0b060000000a010006020608030e10041e0205200a072a5e0888014010c801280af001050cf5011000000101010200030000010407000005000100000602000002080001010002030001080101060c0108000c6d6f6f6e5f636f696e5f313006737472696e6709747970655f696e666f084d6f6f6e436f696e06537472696e670d6765745f747970655f6e616d650b696e69745f6d6f64756c650b64756d6d795f6669656c6409747970655f6e616d658158281cfa125b7d71b00e379a112b1ae7e92b364a62ef80e1804a31d68c845c0000000000000000000000000000000000000000000000000000000000000001126170746f733a3a6d657461646174615f7631140000010d6765745f747970655f6e616d6501010000020107010001000000023800020100000000010200",
+        x"a11ceb0b060000000a010006020608030e10041e0205200a072a660890014010d001280af801050cfd011000000101010200030000010407000005000100000602000002080001010002030001080101060c0108001170726f705f777261707065725f636f696e06737472696e6709747970655f696e666f0b57726170706572436f696e06537472696e670d6765745f747970655f6e616d650b696e69745f6d6f64756c650b64756d6d795f6669656c6409747970655f6e616d65608f7bd51fce6fe06762d738b8b7b19ca9d63720006c9142670f52ea45ff31e60000000000000000000000000000000000000000000000000000000000000001126170746f733a3a6d657461646174615f7631140000010d6765745f747970655f6e616d6501010000020107010001000000023800020100000000010200",
     ];
 
     // dividends/ yields pool
@@ -363,8 +363,11 @@ module property_test::controller {
     }
 
     #[view]
-    public fun get_coin_type_from_fa(metadata: Object<Metadata>): String {
-        coin_wrapper::get_coin_type_from_fa(metadata)
+    public fun get_coin_type_from_fa(listing_info: Object<ListingInfo>): String acquires ListingInfo {
+        let listing_status: &ListingInfo = borrow_global<ListingInfo>(
+            object::object_address(&listing_info)
+        );
+        coin_wrapper::get_coin_type_from_fa(listing_status.ownership_token)
     }
 
     // Create a marketplace using Econia API
@@ -414,12 +417,12 @@ module property_test::controller {
         // assert!(type_info::account_address(type_info) == option::get_with_default(&listing_status.wrapper_coin, @0), 13);
 
         // Step 2: get the type and the front-end should call `create_secondary_market_step_2<>`
-        let lot_size = 1000000; // 0.01 APT
-        let tick_size = 1000; // 0.001 USDC
-        let min_size = 5; // 0.05 APT
+        let lot_size = 1; // 1 Wrapper Coin
+        let tick_size = 1000000; // 0.01 WrapperCoin
+        let min_size = 1; // 1 APT
         market::register_market_base_coin_from_coinstore<
-            aptos_framework::aptos_coin::AptosCoin,
             QuoteAssetType,
+            aptos_framework::aptos_coin::AptosCoin,
             aptos_framework::aptos_coin::AptosCoin,
         >(
             admin,
@@ -427,6 +430,19 @@ module property_test::controller {
             tick_size,
             min_size
         );
+    }
+
+    public entry fun set_market_id(
+        admin: &signer,
+        listing: Object<ListingInfo>,
+        market_id: u64,
+     ) acquires ListingInfo, Roles {
+        assert_is_admin(admin);
+        let listing_status: &mut ListingInfo = borrow_global_mut<ListingInfo>(
+            object::object_address(&listing)
+        );
+
+        listing_status.market_id = market_id;
     }
 
     #[view]
@@ -459,7 +475,7 @@ module property_test::controller {
     }
 
     #[view]
-    public fun get_listing_info(listing: Object<ListingInfo>): (u8, u64, u64, u128, u64, u64, address, address) acquires ListingInfo {
+    public fun get_listing_info(listing: Object<ListingInfo>): (u8, u64, u64, u128, u64, u64, address, address, u64) acquires ListingInfo {
         let listing_info: &ListingInfo = borrow_global<ListingInfo>(object::object_address(&listing));
         (
             listing_info.status,
@@ -469,7 +485,8 @@ module property_test::controller {
             listing_info.token_price,
             listing_info.minting_fee,
             object::object_address(&listing_info.ownership_token),
-            object::object_address(&listing_info.reward_pool)
+            object::object_address(&listing_info.reward_pool),
+            listing_info.market_id,
         )
     }
 
@@ -568,6 +585,9 @@ module property_test::controller {
         let metadata = listing_info.ownership_token;
 
         // create_coin_wrapper<FakeMoney>(admin, listing_info_obj);
+
+        // create_secondary_market_step_1(admin, listing_info_obj, METADATA_SERIALIZED, CODE);
+
         create_coin_wrapper<FakeMoney>(admin, metadata);
 
         buy_shares(receiver, listing_info_obj, 100);
@@ -582,7 +602,7 @@ module property_test::controller {
         assert!(coin::balance<FakeMoney>(signer::address_of(receiver)) == 0, 6);
         assert!(primary_fungible_store::balance(signer::address_of(receiver), metadata) == 100, 7);
 
-        let type_name = get_coin_type_from_fa(metadata);
+        let type_name = get_coin_type_from_fa(listing_info_obj);
         debug::print(&type_name);
 
         coin::destroy_burn_cap(burn_cap);

@@ -120,3 +120,56 @@ export function useGetFungibleAmountByOwner(owner_address: string, collection_ad
     },
   });
 }
+
+export function useGetFungibleAssetBalance(
+  owner_address: string,
+  token_type: string,
+) {
+  return useQuery({
+    queryKey: ["fungible-balance", owner_address],
+    refetchInterval: 1000 * 30,
+    queryFn: async () => {
+      try {
+        if (!owner_address || !token_type) return null;
+
+        const fungible_res = await aptosClient().queryIndexer<TokenQueryResult>({
+          query: {
+            variables: {
+              owner_address: owner_address,
+              token_type: token_type,
+            },
+            query: `
+						query PropsTokenQuery($owner_address: String, $token_type: String) {
+							current_fungible_asset_balances(
+                  where: { owner_address: { _eq: $owner_address }, asset_type_v2: { _eq: $token_type } }
+              ) {
+                  amount_v2
+                  asset_type_v2
+                  metadata {
+                      icon_uri
+                      maximum_v2
+                      project_uri
+                      supply_aggregator_table_handle_v1
+                      supply_aggregator_table_key_v1
+                      supply_v2
+                      symbol
+                      token_standard
+                  }
+							}
+						}`,
+          },
+        });
+
+        const fungible_assets = fungible_res.current_fungible_asset_balances;
+        if (!fungible_assets || fungible_assets.length == 0) return {};
+
+        console.log("FF", fungible_assets[0])
+        return fungible_assets[0]
+
+      } catch (error) {
+        console.error("Error", error);
+        return null;
+      }
+    },
+  });
+}

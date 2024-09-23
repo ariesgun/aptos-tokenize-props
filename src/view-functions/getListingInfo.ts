@@ -24,6 +24,7 @@ export const getListingInfo = async ({ listing_obj_addr }: GetListingInfoArgumen
         token_price: parseInt(listing_info[4]),
         minting_fee: parseInt(listing_info[5]),
         ownership_token: listing_info[6],
-        reward_pool: listing_info[7]
+        reward_pool: listing_info[7],
+        market_id: parseInt(listing_info[8]),
     }
 };

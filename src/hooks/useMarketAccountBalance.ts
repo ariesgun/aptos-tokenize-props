@@ -26,6 +26,7 @@ export const useMarketAccountBalance = (
         accountAddress: AccountAddress.from(addr),
         resourceType: `${ECONIA_ADDR}::user::Collateral<${selectedCoinTypeTag}>`,
       });
+      console.log("Markaet balance", selectedCoinTypeTag, AccountAddress.from(addr), collateral)
       return await aptosClient()
         .getTableItem<TabListNode<U128, MoveCoin>>({
           handle: collateral.map.table.inner.handle,

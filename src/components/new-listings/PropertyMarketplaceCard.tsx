@@ -8,6 +8,10 @@ import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 
 import Placeholder1 from "@/assets/placeholders/bear-1.png";
+import { createSecondaryMarketStep1, createSecondaryMarketStep2, createSecondaryMarketStep3 } from "@/entry-functions/create_secondary_market_step_1";
+import { aptosClient } from "@/utils/aptosClient";
+import { Account, AccountAddressInput, Ed25519PrivateKey, MoveVector, TransactionResponse, U8, UserTransactionResponse } from "@aptos-labs/ts-sdk";
+import { getCoinTypeFromListing } from "@/view-functions/getCoinType";
 
 
 export interface PropertyMarketplaceCardProps {
@@ -20,7 +24,7 @@ export function PropertyMarketplaceCard({
     listing_info
 }: PropertyMarketplaceCardProps) {
     const queryClient = useQueryClient();
-    const { account } = useWallet();
+    const { account, signAndSubmitTransaction } = useWallet();
 
     useEffect(() => {
         queryClient.invalidateQueries();
@@ -42,6 +46,64 @@ export function PropertyMarketplaceCard({
         getTokenMetadata();
     }, [token_data]);
 
+    const setupMarketplace = async (_e: any) => {
+        console.log(account, listing_info)
+        if (!account) return;
+        if (!listing_info) return;
+
+        // const res = await fetch("http://78.141.200.67:3000/build")
+        // const payload = await res.json();
+        // console.log("payload", payload)
+
+        // const transaction = createSecondaryMarketStep1({
+        //     listingInfo: listing_info.address,
+        //     metadata_serialized: payload.metadata.substring(2),
+        //     code: payload.byteCode,
+        // });
+        // console.log("Transac", transaction)
+        // const response = await signAndSubmitTransaction(
+        //     transaction
+        // );
+        // await aptosClient().waitForTransaction({
+        //     transactionHash: response.hash,
+        // })
+
+        // const coin_type = await getCoinTypeFromListing({
+        //     listingInfo: listing_info.address,
+        // })
+        const coin_type = "0xe670f8835c750a166c427acf51fd00e2fb14fe37e513d8f09a04bbceb6208f19::prop_wrapper_coin::WrapperCoin"
+        console.log("aa", coin_type)
+
+        const response2 = await signAndSubmitTransaction(
+            createSecondaryMarketStep2({
+                listingInfo: listing_info.address,
+                coin_type
+            })
+        );
+        await aptosClient().waitForTransaction({ transactionHash: response2.hash })
+
+        const transactions: TransactionResponse = await aptosClient().getTransactionByHash({
+            transactionHash: response2.hash
+        })
+        console.log("Events", (transactions as UserTransactionResponse).events)
+        const registrationEvent = (transactions as UserTransactionResponse).events.filter((el) =>
+            el.type.includes("MarketRegistrationEvent")
+        );
+        const market_id = parseInt(registrationEvent[0].data.market_id)
+        const transaction3 = createSecondaryMarketStep3({
+            listingInfo: listing_info.address,
+            market_id
+        });
+        console.log("Transac", transaction3)
+        const response3 = await signAndSubmitTransaction(
+            transaction3
+        );
+        await aptosClient().waitForTransaction({ transactionHash: response3.hash })
+
+        queryClient.invalidateQueries();
+
+    }
+
     return (
         <section>
             <Card shadow="md">
@@ -56,7 +118,7 @@ export function PropertyMarketplaceCard({
                         alt=""
                     />
 
-                    <div className="p-4 pt-0">
+                    <div className="p-4 pt-0 w-full">
                         <h5 className="mt-4 mb-1 text-xl font-bold text-gray-700 dark:text-gray-400">{tokenMetadata.name}</h5>
                         <h5 className="mb-4 text-md font-normal text-gray-700 dark:text-gray-400">{tokenMetadata.address}</h5>
                         <p className="text-md font-normal text-gray-700 dark:text-gray-400">
@@ -89,6 +151,9 @@ export function PropertyMarketplaceCard({
                                 <>
                                     <Button disabled className="w-full my-2 py-6 mb-0">
                                         <p className="text-md">Secondary Market Closed</p>
+                                    </Button>
+                                    <Button className="w-full my-2 py-6 mb-0" onClick={setupMarketplace}>
+                                        <p className="text-md">Setup secondary market</p>
                                     </Button>
                                 </>
                         }
