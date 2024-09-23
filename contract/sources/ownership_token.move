@@ -172,7 +172,7 @@ module property_test::ownership_token {
         move_to(
             &metadata_object_signer,
             State {
-                paused: true,
+                paused: false, // TODO
             }
         );
 

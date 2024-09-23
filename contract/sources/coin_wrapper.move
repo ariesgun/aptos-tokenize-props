@@ -59,6 +59,13 @@ module property_test::coin_wrapper {
       mint_cap: MintCapability<CoinType>,
     }
 
+    #[resource_group_member(group = aptos_framework::object::ObjectGroup)]
+    struct FungibleAssetStore has key, store {
+        extend_ref: ExtendRef,
+        metadata: Object<Metadata>,
+        fa_store: address,
+    }
+
     /// The resource stored in the main resource account to track all the fungible asset wrappers.
     /// This main resource account will also be the one holding all the deposited coins, each of which in a separate
     /// CoinStore<CoinType> resource. See coin.move in the Aptos Framework for more details.
@@ -216,17 +223,23 @@ module property_test::coin_wrapper {
         fungible_asset::mint(mint_ref, amount)
     }
 
-    public(friend) fun wrap_fa<CoinType>(fa: FungibleAsset): Coin<CoinType> acquires WrapperAccountCoin, CapabilityStore {
+    public(friend) fun wrap_fa<CoinType>(fa: FungibleAsset): Coin<CoinType> acquires WrapperAccountCoin, FungibleAssetStore, CapabilityStore {
         // Ensure the corresponding fungible asset has already been created.
         let metadata = fungible_asset::asset_metadata(&fa);
         // create_coin_asset<CoinType>(metadata);
 
-        // Deposit coins into the main resource account and mint&return the wrapper fungible assets.
-        let amount = fungible_asset::amount(&fa);
-        let mint_cap = &fungible_asset_data_fa<CoinType>(metadata).mint_cap;
+        let wrapper_account = wrapper_account_fa();
+        //   let wrapper_signer = &account::create_signer_with_capability(&wrapper_account.signer_cap);
+        let fungible_asset_to_coin = &wrapper_account.fungible_asset_to_coin;
+        let coin_wrapper = smart_table::borrow(fungible_asset_to_coin, metadata);
 
-        primary_fungible_store::deposit(wrapper_address(), fa);
-        coin::mint(amount, mint_cap)
+        let capability = borrow_global<CapabilityStore<CoinType>>(object::object_address(coin_wrapper));
+        let amount = fungible_asset::amount(&fa);
+
+        let store_address = fungible_asset_data_fa_coin(metadata).fa_store;
+
+        primary_fungible_store::deposit(store_address, fa);
+        coin::mint<CoinType>(amount, &capability.mint_cap)
     }
 
     /// Unwrap the given fungible asset into coins. This will burn the fungible asset and withdraw&return the coins from
@@ -297,7 +310,7 @@ module property_test::coin_wrapper {
         coin::name<CoinType>()
     }
 
-    public(friend) fun unwrap_fa<CoinType>(coins: Coin<CoinType>): FungibleAsset acquires WrapperAccountCoin, CapabilityStore {
+    public(friend) fun unwrap_fa<CoinType>(coins: Coin<CoinType>): FungibleAsset acquires WrapperAccountCoin, CapabilityStore, FungibleAssetStore {
         let amount = coin::value(&coins);
         // aptos_account::deposit_coins(wrapper_address(), coins);
         let type_name = type_info::type_name<CoinType>();
@@ -306,9 +319,12 @@ module property_test::coin_wrapper {
         let burn_cap = &fungible_asset_data_fa<CoinType>(fa).burn_cap;
         coin::burn(coins, burn_cap);
         // let mint_ref = &fungible_asset_data<CoinType>().mint_ref;
-        let from_wallet = primary_fungible_store::primary_store<Metadata>(wrapper_address(), fa);
-        let wrapper_signer = &account::create_signer_with_capability(&wrapper_account_fa().signer_cap);
-        fungible_asset::withdraw(wrapper_signer, from_wallet, amount)
+        // let from_wallet = primary_fungible_store::primary_store<Metadata>(wrapper_address(), fa);
+        // let wrapper_signer = &account::create_signer_with_capability(&wrapper_account_fa().signer_cap);
+        // fungible_asset::withdraw(wrapper_signer, from_wallet, amount)
+        let extend_ref = &fungible_asset_data_fa_coin(fa).extend_ref;
+        let receiver_signer = &object::generate_signer_for_extending(extend_ref);
+        primary_fungible_store::withdraw(receiver_signer, fa, amount)
     }
 
     // Create the coin give CoinType if it doesn't exist yet.
@@ -347,6 +363,7 @@ module property_test::coin_wrapper {
         let obj_constructor_ref = object::create_object(@property_test);
         let obj_signer = object::generate_signer(&obj_constructor_ref);
         let obj_cap = object::object_from_constructor_ref(&obj_constructor_ref);
+        let obj_extend_ref = object::generate_extend_ref(&obj_constructor_ref);
 
         move_to(
             &obj_signer,
@@ -356,6 +373,16 @@ module property_test::coin_wrapper {
                 mint_cap,
             }
         );
+
+        move_to(
+            &obj_signer,
+            FungibleAssetStore {
+                extend_ref: obj_extend_ref,
+                metadata: fa_metadata,
+                fa_store: signer::address_of(&obj_signer),
+            }
+        );
+
 
         smart_table::add(fungible_asset_to_coin, fa_metadata, obj_cap);
         smart_table::add(&mut wrapper_account.coin_to_fungible_asset, coin_type, fa_metadata);
@@ -414,6 +441,11 @@ module property_test::coin_wrapper {
     inline fun fungible_asset_data_fa<CoinType>(fa: Object<Metadata>): &CapabilityStore<CoinType> acquires WrapperAccountCoin, CapabilityStore {
         let coin_obj = smart_table::borrow(&wrapper_account_fa().fungible_asset_to_coin, fa);
         borrow_global<CapabilityStore<CoinType>>(object::object_address(coin_obj))
+    }
+
+    inline fun fungible_asset_data_fa_coin(fa: Object<Metadata>): &FungibleAssetStore acquires WrapperAccountCoin, FungibleAssetStore {
+        let coin_obj = smart_table::borrow(&wrapper_account_fa().fungible_asset_to_coin, fa);
+        borrow_global<FungibleAssetStore>(object::object_address(coin_obj))
     }
 
     inline fun wrapper_account(): &WrapperAccount acquires WrapperAccount {

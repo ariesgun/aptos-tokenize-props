@@ -1,11 +1,14 @@
 module property_test::controller {
 
     use aptos_framework::aptos_account;
+    use aptos_framework::code;
     use aptos_framework::aptos_coin::AptosCoin;
     use aptos_framework::coin::{Self, Coin};
     use aptos_framework::fungible_asset::{Self, Metadata, FungibleAsset};
     use aptos_framework::object::{Self, Object, ExtendRef};
     use aptos_framework::primary_fungible_store;
+    use aptos_framework::object_code_deployment;
+
     // use aptos_framework::primary_fungible_store;
     // use aptos_framework::dispatchable_fungible_asset;
     // use aptos_framework::function_info;
@@ -31,7 +34,10 @@ module property_test::controller {
     use std::string::String;
     use std::option::{Self, Option};
 
+    use std::bcs;
     use std::debug;
+    use aptos_framework::util;
+    use aptos_framework::account;
 
     // Errors list
 
@@ -44,6 +50,11 @@ module property_test::controller {
 
     const ASSET_SYMBOL: vector<u8> = b"oHILTON";
     const APP_OBJECT_SEED: vector<u8> = b"PROP_CONTROLLER";
+
+    const METADATA_SERIALIZED: vector<u8> = x"1070726f70657274792d746573742d31300100000000000000004036373338424338414433394632353433433844323846313634444432344533454439333732324642344530354630454531464339393434343643313135443530fc011f8b08000000000002ff4d8ecd6ec3201084ef3c45e4bb6df02fa9944355a9b73e81e5c302eb18a50604d86ddfbea026556e3bb3b3b3dfe440dee08a3331b0e1e9722a9cb70e7dfc29238658325a90037dd0d6e425ab68951cd8e36a7d48ce34133281521e43c030930f6bcd9bd5e652d06fce7ade702617604d2f4635324129b6e319186b04031cf1dc8876e8606870e11419a71db44c0d5cf2ae9745aa5678944ff5d97068141aa93154af2edaf0ee13f997f5b7995c75cc946b8c2ebcd47592eb2e2a69b71a72b2fc0411eea3b41eab142888c7231f6da08dc1a4c32e94f6d9fa4b6ef6c07a793cb99fffeb07e433d74c7e017e9d37db57010000010c6d6f6f6e5f636f696e5f3130af021f8b08000000000002ff5d91416b84301085effe8a2985a2b0607b1db74ba1e7d2c31e4b09591d25ad26928c9545fcef8d31bbb59b8be3739c79df4b9ee31d1e3a6374d2996a6809de7cfd6a94465c5451fa523c3dc29424e04f9ec3e00864cfc689daca8e4663bf11cde98b4a469c8ed4d63b780faf73f1efa7de9a9e2c9f0593f3ada5d16c4ddb922d42d7d2e2b842e4734f42e9dadce88eadd20de2313ce36c2f0e255f5dc304f3faa11e3428ad58ac5ca9235d91457870aad164334f04f1787f2d31780621abca9273f00c17a2a808366295d2975a8a8e58569265566ca7fc21793c4b9269cd6fb4b2f7e8fb8bcb4374b3dbee8ca3a2fdfb8f1f45e367a8fbe1d4aa321035c422e4a37df46986b086b181b9a617835c1a378bb3b8644ef27cefef7eb9e45fcca754bb0502000000000300000000000000000000000000000000000000000000000000000000000000010e4170746f734672616d65776f726b00000000000000000000000000000000000000000000000000000000000000010b4170746f735374646c696200000000000000000000000000000000000000000000000000000000000000010a4d6f76655374646c696200";
+    const CODE: vector<vector<u8>> = vector[
+        x"a11ceb0b060000000a010006020608030e10041e0205200a072a5e0888014010c801280af001050cf5011000000101010200030000010407000005000100000602000002080001010002030001080101060c0108000c6d6f6f6e5f636f696e5f313006737472696e6709747970655f696e666f084d6f6f6e436f696e06537472696e670d6765745f747970655f6e616d650b696e69745f6d6f64756c650b64756d6d795f6669656c6409747970655f6e616d658158281cfa125b7d71b00e379a112b1ae7e92b364a62ef80e1804a31d68c845c0000000000000000000000000000000000000000000000000000000000000001126170746f733a3a6d657461646174615f7631140000010d6765745f747970655f6e616d6501010000020107010001000000023800020100000000010200",
+    ];
 
     // dividends/ yields pool
 
@@ -95,6 +106,7 @@ module property_test::controller {
         reward_pool: Object<RewardsPool>,
         minting_fee: u64,
         market_id: u64,
+        wrapper_coin: Option<address>,
     }
 
     struct ExampleUSDCCC {}
@@ -210,6 +222,7 @@ module property_test::controller {
                 reward_pool: reward_pool_obj,
                 minting_fee: public_mint_fee,
                 market_id: 0,
+                wrapper_coin: option::none(),
             }
         );
 
@@ -311,10 +324,16 @@ module property_test::controller {
     // -------------------------------------
     public entry fun create_coin_wrapper<CoinType>(
         account: &signer,
+        // listing: Object<ListingInfo>,
         fa_metadata: Object<Metadata>
-    ) acquires Roles {
-        assert_is_admin(account);
+    ) {
+        // assert_is_admin(account);
+
+        // let listing_info: &mut ListingInfo = borrow_global_mut<ListingInfo>(
+        //     object::object_address(&listing)
+        // );
         coin_wrapper::create_coin_asset<CoinType>(account, fa_metadata);
+        // listing_info.wrapper_coin = option::some(signer::address_of(account));
     }
 
     // Deposit to Econia
@@ -323,6 +342,11 @@ module property_test::controller {
         metadata: Object<Metadata>,
         amount: u64,
     ) {
+        if (!coin::is_account_registered<CoinType>(signer::address_of(account))) {
+            // Register one.
+          coin::register<CoinType>(account);
+        };
+
         let fa: FungibleAsset = primary_fungible_store::withdraw(account, metadata, amount);
         let coins = coin_wrapper::wrap_fa<CoinType>(fa);
         coin::deposit<CoinType>(signer::address_of(account), coins);
@@ -344,7 +368,38 @@ module property_test::controller {
     }
 
     // Create a marketplace using Econia API
-    // Step 1. Create an object and publish the coin wrapper package
+    // Step 1. create_object_and_publish_package
+    public entry fun create_secondary_market_step_1(
+        admin: &signer,
+        listing: Object<ListingInfo>,
+        metadata_serialized: vector<u8>,
+        code: vector<vector<u8>>,
+    ) acquires ListingInfo, Roles {
+        assert_is_admin(admin);
+
+        let seeds = vector[];
+
+        let sequence_number = account::get_sequence_number(signer::address_of(admin)) + 1;
+        let separator: vector<u8> = b"aptos_framework::object_code_deployment";
+        vector::append(&mut seeds, bcs::to_bytes(&separator));
+        vector::append(&mut seeds, bcs::to_bytes(&sequence_number));
+
+        let constructor_ref = &object::create_named_object(admin, seeds);
+        let code_signer = &object::generate_signer(constructor_ref);
+        let code_signer_addr = object::address_from_constructor_ref(constructor_ref);
+
+        code::publish_package_txn(
+            code_signer,
+            metadata_serialized,
+            code
+        );
+
+        let listing_status: &mut ListingInfo = borrow_global_mut<ListingInfo>(
+            object::object_address(&listing)
+        );
+        listing_status.wrapper_coin = option::some(code_signer_addr);
+    }
+
     // Step 2. Register the market using the newly created coin type using Econia SDK
     public entry fun create_secondary_market<QuoteAssetType>(
         admin: &signer,
@@ -355,9 +410,10 @@ module property_test::controller {
             object::object_address(&listing)
         );
 
-        // Create an object and publish a package
-        // Or create a resource account and publish a package.
+        let type_info = &type_info::type_of<QuoteAssetType>();
+        // assert!(type_info::account_address(type_info) == option::get_with_default(&listing_status.wrapper_coin, @0), 13);
 
+        // Step 2: get the type and the front-end should call `create_secondary_market_step_2<>`
         let lot_size = 1000000; // 0.01 APT
         let tick_size = 1000; // 0.001 USDC
         let min_size = 5; // 0.05 APT
@@ -453,21 +509,24 @@ module property_test::controller {
     #[test_only]
     use property_test::package_manager;
 
-     #[test(admin = @property_test, account = @0x123, core = @0x01)]
+     #[test(admin = @property_test, receiver = @0x123, core = @0x01)]
     fun test_create_coin_wrapper(
         admin: &signer,
         core: &signer,
-        account: &signer,
+        receiver: &signer,
     ) acquires Registry, ListingInfo, Roles {
         let (burn_cap, mint_cap) = aptos_framework::aptos_coin::initialize_for_test(core);
         aptos_account::create_account(signer::address_of(admin));
         coin::deposit(signer::address_of(admin), coin::mint(10000, &mint_cap));
+        aptos_account::create_account(signer::address_of(receiver));
+        coin::deposit(signer::address_of(receiver), coin::mint(10000, &mint_cap));
 
-        init_module(admin);
         ownership_token::initialize(admin);
         package_manager::init_module_internal(admin);
         coin_wrapper::initialize_mo(admin);
         coin_wrapper::initialize();
+
+        init_module(admin);
 
         create_entry(
             admin,
@@ -486,6 +545,19 @@ module property_test::controller {
             0,
         );
 
+        let publisher_address = signer::address_of(admin);
+        let sequence_number = account::get_sequence_number(signer::address_of(admin)) + 1;
+
+        debug::print(&utf8(b"sss"));
+        debug::print(&signer::address_of(admin));
+        debug::print(&sequence_number);
+
+        let seeds = vector[];
+        let separator: vector<u8> = b"aptos_framework::object_code_deployment";
+        vector::append(&mut seeds, bcs::to_bytes(&separator));
+        vector::append(&mut seeds, bcs::to_bytes(&sequence_number));
+        debug::print(&seeds);
+
         let listings = get_all_listings();
         debug::print(&vector::length(&listings));
         assert!(vector::length(&listings) == 1, 1);
@@ -495,7 +567,20 @@ module property_test::controller {
         let listing_info = borrow_global<ListingInfo>(asset_addr);
         let metadata = listing_info.ownership_token;
 
+        // create_coin_wrapper<FakeMoney>(admin, listing_info_obj);
         create_coin_wrapper<FakeMoney>(admin, metadata);
+
+        buy_shares(receiver, listing_info_obj, 100);
+        assert!(coin::balance<AptosCoin>(signer::address_of(receiver)) == 9900, 2);
+        assert!(primary_fungible_store::balance(signer::address_of(receiver), metadata) == 100, 3);
+
+        wrap_ownership_token<FakeMoney>(receiver, metadata, 5);
+        assert!(coin::balance<FakeMoney>(signer::address_of(receiver)) == 5, 4);
+        assert!(primary_fungible_store::balance(signer::address_of(receiver), metadata) == 95, 5);
+
+        unwrap_ownership_token<FakeMoney>(receiver, 5);
+        assert!(coin::balance<FakeMoney>(signer::address_of(receiver)) == 0, 6);
+        assert!(primary_fungible_store::balance(signer::address_of(receiver), metadata) == 100, 7);
 
         let type_name = get_coin_type_from_fa(metadata);
         debug::print(&type_name);
