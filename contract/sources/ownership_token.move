@@ -89,20 +89,19 @@ module tokenized_properties::ownership_token {
             }
         );
 
-        create_collection(&obj_signer);
-    }
-
-    fun create_collection(
-        admin: &signer,
-    ) {
         // Create collection
         collection::create_unlimited_collection(
-            admin,
+            &obj_signer,
             utf8(COLLECTION_DESCRIPTION),
             utf8(COLLECTION_NAME),
             option::none(),
             utf8(COLLECTION_URI),
         );
+    }
+
+    #[view]
+    public fun get_collection_address(): address {
+        collection::create_collection_address(&get_app_signer_address(), &utf8(COLLECTION_NAME))
     }
 
     fun get_app_signer_address(): address {

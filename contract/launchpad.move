@@ -135,7 +135,7 @@ module launchpad_addr::launchpad {
             collection_objects: vector::empty()
         });
         move_to(sender, Config {
-            creator_addr: @initial_creator_addr,
+            creator_addr: @admin_addr,
             admin_addr: signer::address_of(sender),
             pending_admin_addr: option::none(),
             mint_fee_collector_addr: signer::address_of(sender),
