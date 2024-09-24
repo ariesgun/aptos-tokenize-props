@@ -51,26 +51,26 @@ export function PropertyMarketplaceCard({
         if (!account) return;
         if (!listing_info) return;
 
-        // const res = await fetch("http://78.141.200.67:3000/build")
-        // const payload = await res.json();
-        // console.log("payload", payload)
+        const res = await fetch("http://78.141.200.67:3000/build")
+        const payload = await res.json();
+        console.log("payload", payload)
 
-        // const transaction = createSecondaryMarketStep1({
-        //     listingInfo: listing_info.address,
-        //     metadata_serialized: payload.metadata.substring(2),
-        //     code: payload.byteCode,
-        // });
-        // console.log("Transac", transaction)
-        // const response = await signAndSubmitTransaction(
-        //     transaction
-        // );
-        // await aptosClient().waitForTransaction({
-        //     transactionHash: response.hash,
-        // })
+        const transaction = createSecondaryMarketStep1({
+            listingInfo: listing_info.address,
+            metadata_serialized: payload.metadata.substring(2),
+            code: payload.byteCode,
+        });
+        console.log("Transac", transaction)
+        const response = await signAndSubmitTransaction(
+            transaction
+        );
+        await aptosClient().waitForTransaction({
+            transactionHash: response.hash,
+        })
 
-        // const coin_type = await getCoinTypeFromListing({
-        //     listingInfo: listing_info.address,
-        // })
+        const coin_type = await getCoinTypeFromListing({
+            listingInfo: listing_info.address,
+        })
         const coin_type = "0xe670f8835c750a166c427acf51fd00e2fb14fe37e513d8f09a04bbceb6208f19::prop_wrapper_coin::WrapperCoin"
         console.log("aa", coin_type)
 
@@ -101,7 +101,6 @@ export function PropertyMarketplaceCard({
         await aptosClient().waitForTransaction({ transactionHash: response3.hash })
 
         queryClient.invalidateQueries();
-
     }
 
     return (

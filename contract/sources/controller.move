@@ -304,6 +304,14 @@ module tokenized_properties::controller {
         coin_wrapper::get_coin_type_from_fa(listing_status.ownership_token)
     }
 
+    public fun create_coin_wrapper<CoinType>(
+        account: &signer,
+        fa_metadata: Object<Metadata>
+    ) acquires Roles {
+        assert_is_admin(account);
+        coin_wrapper::create_coin_asset<CoinType>(account, fa_metadata);
+    }
+
     // Create a marketplace using Econia API
     // Step 1. create_object_and_publish_package
     public entry fun create_secondary_market_step_1(
@@ -439,15 +447,6 @@ module tokenized_properties::controller {
 
     #[test_only]
     use tokenized_properties::package_manager;
-
-    #[test_only]
-    public fun create_coin_wrapper<CoinType>(
-        account: &signer,
-        fa_metadata: Object<Metadata>
-    ) acquires Roles {
-        assert_is_admin(account);
-        coin_wrapper::create_coin_asset<CoinType>(account, fa_metadata);
-    }
 
      #[test(admin = @tokenized_properties, receiver = @0x123, core = @0x01)]
     fun test_create_coin_wrapper(
