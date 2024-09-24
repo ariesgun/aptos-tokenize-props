@@ -218,17 +218,18 @@ module tokenized_properties::controller {
         assert!(remaining_shares(token_object) >= (amount as u128), ENO_REMAINING_SHARES);
 
         // Check if the listing is still active or not.
-        let listing_status = borrow_global<ListingInfo>(object::object_address(&token_object));
-        assert!(listing_status.status == 1, ELISTING_NOT_ACTIVE);
+        let listing_info = borrow_global<ListingInfo>(object::object_address(&token_object));
+        assert!(listing_info.status == 1, ELISTING_NOT_ACTIVE);
 
         // Transfer token to this contract? (APT or USDC). amount * UNIT_PRICE
-        let usdc_amount = 100;
-        // let usdc_metadata = object::address_to_object<Metadata>(listing_status.ownership_token);
+        // 7-decimal is for testing purposes.
+        let usdc_amount = listing_info.token_price * amount * (10000000 as u64);
+        // let usdc_metadata = object::address_to_object<Metadata>(listing_info.ownership_token);
         // primary_fungible_store::transfer(account, usdc_metadata, @tokenized_properties, usdc_amount);
         aptos_account::transfer(account, @tokenized_properties, usdc_amount);
 
         // Transfer FT to the caller account.
-        let metadata: Object<Metadata> = listing_status.ownership_token;
+        let metadata: Object<Metadata> = listing_info.ownership_token;
         ownership_token::mint(metadata, signer::address_of(account), amount);
     }
 
@@ -456,9 +457,9 @@ module tokenized_properties::controller {
     ) acquires Registry, ListingInfo, Roles {
         let (burn_cap, mint_cap) = aptos_framework::aptos_coin::initialize_for_test(core);
         aptos_account::create_account(signer::address_of(admin));
-        coin::deposit(signer::address_of(admin), coin::mint(10000, &mint_cap));
+        coin::deposit(signer::address_of(admin), coin::mint(100_00000000, &mint_cap));
         aptos_account::create_account(signer::address_of(receiver));
-        coin::deposit(signer::address_of(receiver), coin::mint(10000, &mint_cap));
+        coin::deposit(signer::address_of(receiver), coin::mint(100_00000000, &mint_cap));
 
         ownership_token::initialize(admin);
         package_manager::init_module_for_test(admin);
@@ -480,7 +481,7 @@ module tokenized_properties::controller {
             0,
             100,
             option::none(),
-            10,
+            1,
             0,
         );
 
@@ -503,7 +504,7 @@ module tokenized_properties::controller {
         create_coin_wrapper<FakeMoney>(admin, metadata);
 
         buy_shares(receiver, listing_info_obj, 100);
-        assert!(coin::balance<AptosCoin>(signer::address_of(receiver)) == 9900, 2);
+        assert!(coin::balance<AptosCoin>(signer::address_of(receiver)) == 90_00000000, 2);
         assert!(primary_fungible_store::balance(signer::address_of(receiver), metadata) == 100, 3);
 
         wrap_ownership_token<FakeMoney>(receiver, metadata, 5);
