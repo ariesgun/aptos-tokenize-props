@@ -5,7 +5,7 @@
 
 // The module owns the pools.
 
-module property_test::rewards_pool {
+module tokenized_properties::rewards_pool {
 
     use aptos_framework::fungible_asset::{Self, FungibleStore, Metadata};
     use aptos_framework::primary_fungible_store;
@@ -21,7 +21,7 @@ module property_test::rewards_pool {
     use std::vector;
     use std::debug;
 
-    friend property_test::controller;
+    friend tokenized_properties::controller;
 
     // Errors
     const EREWARD_TOKEN_NOT_SUPPORTED: u64 = 0;
@@ -46,7 +46,7 @@ module property_test::rewards_pool {
     public(friend) fun create_entry(
         reward_token: Object<Metadata>,
     ) : Object<RewardsPool> {
-        let pool_constructor_ref = &object::create_object(@property_test);
+        let pool_constructor_ref = &object::create_object(@tokenized_properties);
         let pool_signer = &object::generate_signer(pool_constructor_ref);
         let pool_addr = signer::address_of(pool_signer);
 

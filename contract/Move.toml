@@ -1,11 +1,10 @@
 [package]
-name = "HelloNFT"
+name = "TokenizedProperties"
 version = "1.0.0"
 authors = []
 
 [addresses]
-initial_creator_addr = "_"
-property_test = "_"
+tokenized_properties = "_"
 admin_addr = "_"
 econia =   "0xc0de11113b427d35ece1d8991865a941c0578b0f349acabbe9753863c24109ff"
 

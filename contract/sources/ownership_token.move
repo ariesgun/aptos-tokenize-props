@@ -2,7 +2,7 @@
 // The app object is also the creator of all ownership token objects.
 // Owner of each food token object is aptogochi owner.
 
-module property_test::ownership_token {
+module tokenized_properties::ownership_token {
     use aptos_framework::fungible_asset::{Self, MintRef, TransferRef, BurnRef, Metadata, FungibleAsset};
     use aptos_framework::object::{Self, Object, ConstructorRef, ExtendRef};
     use aptos_framework::primary_fungible_store;
@@ -19,9 +19,7 @@ module property_test::ownership_token {
     use std::option;
     use std::vector;
 
-    // use std::debug;
-
-    friend property_test::controller;
+    friend tokenized_properties::controller;
 
     // Errors list
     const ENOT_OWNER: u64 = 1;
@@ -108,7 +106,7 @@ module property_test::ownership_token {
     }
 
     fun get_app_signer_address(): address {
-        object::create_object_address(&@property_test, APP_SEED)
+        object::create_object_address(&@tokenized_properties, APP_SEED)
     }
 
     fun get_app_signer(signer_address: address): signer acquires AppObjectController {
@@ -300,7 +298,7 @@ module property_test::ownership_token {
         let name = fungible_asset::name(asset);
         let seed = construct_token_seed(&symbol, &name);
 
-        let fa_controller = borrow_global<AppObjectController>(object::create_object_address(&@property_test, APP_SEED));
+        let fa_controller = borrow_global<AppObjectController>(object::create_object_address(&@tokenized_properties, APP_SEED));
         let fa_address = table::borrow(&fa_controller.tokens_info_map, utf8(seed));
         let state = borrow_global<State>(*fa_address);
         assert!(!state.paused, EPAUSED);
@@ -314,14 +312,14 @@ module property_test::ownership_token {
         let name = fungible_asset::name(asset);
         let seed = construct_token_seed(&symbol, &name);
 
-        let fa_controller = borrow_global<AppObjectController>(object::create_object_address(&@property_test, APP_SEED));
+        let fa_controller = borrow_global<AppObjectController>(object::create_object_address(&@tokenized_properties, APP_SEED));
         let fa_address = table::borrow(&fa_controller.tokens_info_map, utf8(seed));
         let state = borrow_global_mut<State>(*fa_address);
         if (state.paused == paused) { return };
         state.paused = paused;
     }
 
-    // #[test(admin = @property_test, creator = @0x123, receiver = @0xface)]
+    // #[test(admin = @tokenized_properties, creator = @0x123, receiver = @0xface)]
     // fun test_basic_flow(
     //     admin: &signer,
     //     creator: &signer,
