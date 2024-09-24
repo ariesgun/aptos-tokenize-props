@@ -307,7 +307,7 @@ module tokenized_properties::controller {
     public fun create_coin_wrapper<CoinType>(
         account: &signer,
         fa_metadata: Object<Metadata>
-    ) acquires Roles {
+    ) {
         // assert_is_admin(account);
         coin_wrapper::create_coin_asset<CoinType>(account, fa_metadata);
     }
