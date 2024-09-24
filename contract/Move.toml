@@ -5,8 +5,8 @@ authors = []
 
 [addresses]
 tokenized_properties = "_"
-admin_addr = "_"
-econia =   "0xc0de11113b427d35ece1d8991865a941c0578b0f349acabbe9753863c24109ff"
+admin_addr= "0x8158281cfa125b7d71b00e379a112b1ae7e92b364a62ef80e1804a31d68c845c"
+econia = "0xc0de11113b427d35ece1d8991865a941c0578b0f349acabbe9753863c24109ff"
 
 [dependencies]
 AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", rev = "mainnet", subdir = "aptos-move/framework/aptos-framework" }
