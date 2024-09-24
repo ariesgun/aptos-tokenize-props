@@ -51,9 +51,15 @@ export function PropertyMarketplaceCard({
         if (!account) return;
         if (!listing_info) return;
 
-        const res = await fetch("http://78.141.200.67:3000/build")
+        let url = new URL("http://78.141.200.67:3000/build")
+        // let url = new URL("http://127.0.0.1:3005/build")
+        url.search = new URLSearchParams({
+            fa_metadata: listing_info.ownership_token,
+        }).toString();
+
+        const res = await fetch(url)
         const payload = await res.json();
-        console.log("payload", payload)
+        console.log("payload", url, payload)
 
         const transaction = createSecondaryMarketStep1({
             listingInfo: listing_info.address,
@@ -71,7 +77,6 @@ export function PropertyMarketplaceCard({
         const coin_type = await getCoinTypeFromListing({
             listingInfo: listing_info.address,
         })
-        const coin_type = "0xe670f8835c750a166c427acf51fd00e2fb14fe37e513d8f09a04bbceb6208f19::prop_wrapper_coin::WrapperCoin"
         console.log("aa", coin_type)
 
         const response2 = await signAndSubmitTransaction(
