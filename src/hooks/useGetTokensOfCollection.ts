@@ -28,12 +28,14 @@ interface MintQueryResult {
 }
 interface TokenQueryResult {
     current_fungible_asset_balances: Array<any>;
+    current_fungible_asset_balances_aggregate: any;
+
 }
 
 export function useGetTokensOfCollection(collection_address: string = COLLECTION_ADDRESS) {
 
     return useQuery({
-        queryKey: ["tokens-data", collection_address],
+        queryKey: ["tokens-data-of-collection", collection_address],
         refetchInterval: 1000 * 30,
         queryFn: async () => {
             try {
@@ -83,7 +85,7 @@ export function useGetTokensOfCollection(collection_address: string = COLLECTION
                     tokens
                 };
             } catch (error) {
-                console.error("Error", error);
+                console.error("Error 1", error);
                 return null;
             }
         },
@@ -93,7 +95,7 @@ export function useGetTokensOfCollection(collection_address: string = COLLECTION
 export function useGetTokenData(token_address: string) {
 
     return useQuery({
-        queryKey: ["token-data", token_address],
+        queryKey: ["token-data-by-id", token_address],
         refetchInterval: 1000 * 30,
         queryFn: async () => {
             try {
@@ -123,59 +125,33 @@ export function useGetTokenData(token_address: string) {
                                 }
                                 owner_address
 							}
+                            current_fungible_asset_balances_aggregate(
+                                where: {asset_type_v2: {_eq: $token_id } }
+                            ) {
+                                aggregate {
+                                    sum {
+                                        amount_v2
+                                    }
+                                }
+                            }
 						}`,
                     },
                 });
 
-                const tokens = res.current_fungible_asset_balances;
-                if (!tokens || tokens.length == 0) return {};
+                // const tokens = res.current_fungible_asset_balances;
+                // console.log("TOkens, ", token_address, tokens)
+                // if (!tokens || tokens?.length == 0) return {};
 
-                return tokens[0]
+                // return tokens[0]
 
-                // const mintStageRes = await getActiveOrNextMintStage({ collection_address });
-                // // Only return collection data if no mint stage is found
-                // if (mintStageRes.length === 0) {
-                //   return {
-                //     maxSupply: collection.max_supply ?? 0,
-                //     totalMinted: collection.current_supply ?? 0,
-                //     uniqueHolders: res.current_collection_ownership_v2_view_aggregate.aggregate?.count ?? 0,
-                //     userMintBalance: 0,
-                //     collection,
-                //     endDate: new Date(),
-                //     startDate: new Date(),
-                //     isMintActive: false,
-                //     isMintInfinite: false,
-                //   } satisfies MintData;
-                // }
+                const total_balances = res.current_fungible_asset_balances_aggregate?.aggregate?.sum?.amount_v2 ?? 0
 
-                // const mint_stage = mintStageRes[0];
-                // const { startDate, endDate, isMintInfinite } = await getMintStageStartAndEndTime({
-                //   collection_address,
-                //   mint_stage,
-                // });
-                // const userMintBalance =
-                //   account == null
-                //     ? 0
-                //     : await getUserMintBalance({ user_address: account.address, collection_address, mint_stage });
-                // const isMintEnabled = await getMintEnabled({ collection_address });
+                return {
+                    amount_v2: total_balances
+                }
 
-                // return {
-                //   maxSupply: collection.max_supply ?? 0,
-                //   totalMinted: collection.current_supply ?? 0,
-                //   uniqueHolders: res.current_collection_ownership_v2_view_aggregate.aggregate?.count ?? 0,
-                //   userMintBalance,
-                //   collection,
-                //   endDate,
-                //   startDate,
-                //   isMintActive:
-                //     isMintEnabled &&
-                //     new Date() >= startDate &&
-                //     new Date() <= endDate &&
-                //     collection.max_supply > collection.current_supply,
-                //   isMintInfinite,
-                // } satisfies MintData;
             } catch (error) {
-                console.error("Error", error);
+                console.error("Error 2", error);
                 return null;
             }
         },

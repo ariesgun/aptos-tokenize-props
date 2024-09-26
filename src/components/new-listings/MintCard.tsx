@@ -36,7 +36,12 @@ export const MintCard: React.FC<MintCardProps> = ({
     const mintUpTo = maxSupply - totalMinted;
 
     useEffect(() => {
-        queryClient.invalidateQueries();
+        queryClient.invalidateQueries({
+            queryKey: [
+                "token-data-by-id",
+                tokenId
+            ]
+        });
     }, [account, queryClient]);
 
     if (isLoading) {

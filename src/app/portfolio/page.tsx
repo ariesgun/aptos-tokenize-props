@@ -106,7 +106,7 @@ function App() {
                   <TableCell className="max-w-4">
                     <div className="flex flex-col gap-2">
                       <p className="text-md">
-                        {data?.fungible_assets?.find((el) => el.asset_type_v2 === data.tokens_data[idx].token_data_id)?.amount_v2}
+                        {data?.fungible_assets?.find((el) => el.asset_type_v2 === data.tokens_data[idx].token_data_id)?.amount_v2 ?? 0}
                         <span className="font-bold"> ${data?.fungible_assets?.find((el) => el.asset_type_v2 === data.tokens_data[idx].token_data_id)?.metadata.symbol}</span>
                       </p>
                     </div>

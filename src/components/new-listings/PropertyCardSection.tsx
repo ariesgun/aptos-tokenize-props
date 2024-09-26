@@ -25,7 +25,12 @@ export function PropertyCardSection({ token_data, listing_info }: PropertyCardSe
     const { account } = useWallet();
 
     useEffect(() => {
-        queryClient.invalidateQueries();
+        queryClient.invalidateQueries({
+            queryKey: [
+                "token-data-by-id",
+                token_data.token_data_id
+            ]
+        });
     }, [account, queryClient]);
 
     // const { userMintBalance = 0, collection, totalMinted = 35, maxSupply = 100 } = data ?? {};
