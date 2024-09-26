@@ -1,6 +1,6 @@
 import { InputTransactionData } from "@aptos-labs/wallet-adapter-react";
 import { MODULE_ADDRESS } from "@/constants";
-import { EntryFunctionABI, HexInput, MoveVector, objectStructTag, Serializer, StructTag, TypeTagAddress, TypeTagGeneric, TypeTagStruct, TypeTagVector, U64, U8 } from "@aptos-labs/ts-sdk";
+import { EntryFunctionABI, TypeTagVector } from "@aptos-labs/ts-sdk";
 
 export type createSecondaryMarketStep1Args = {
   listingInfo: string;

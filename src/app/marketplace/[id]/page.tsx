@@ -85,11 +85,10 @@ export default function Page({ params }: { params: { id: string } }) {
   }, [listings, tokenData])
 
   useEffect(() => {
-
     const run = async () => {
       const res = await getAllMarket();
 
-      const filtered_res = res.filter((el) => el.market_id === (listingInfo?.market_id ?? 38))
+      const filtered_res = res.filter((el) => el.market_id === listingInfo?.market_id)
       setMarketData(filtered_res);
     }
 
@@ -103,6 +102,14 @@ export default function Page({ params }: { params: { id: string } }) {
       allMarketData: marketData as ApiMarket[],
     };
   }, [marketData]);
+
+  if (orderbookIsLoading) {
+    return (
+      <div className="text-center p-8">
+        <h1 className="title-md">Loading...</h1>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -219,6 +226,7 @@ export default function Page({ params }: { params: { id: string } }) {
       />
       <WrapUnwrapFlowModal
         selectedMarket={marketData[0]}
+        tokenType={listingInfo?.ownership_token}
         isOpen={wrapUnwrapModalOpen}
         onClose={() => {
           setWrapUnwrapModalOpen(false);

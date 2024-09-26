@@ -1,21 +1,16 @@
-import { entryFunctions } from "econia-labs-sdk";
 import { Menu, MenuButton, MenuItem, MenuItems, Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import React, { useMemo, useState } from "react";
 
-import { NO_CUSTODIAN } from "@/constants";
 import { useAptos } from "@/contexts/AptosContext";
-import { ECONIA_ADDR } from "@/env";
 import { useCoinBalance } from "@/hooks/useCoinBalance";
-import { useMarketAccountBalance } from "@/hooks/useMarketAccountBalance";
 import { type ApiCoin, type ApiMarket } from "../../types/api";
-import { toRawCoinAmount } from "@/utils/coin";
 import { TypeTag } from "@/utils/TypeTag";
 import { Input } from "../../Input";
 import { Button } from "../../Button";
-import { useGetFungibleAmountByOwner, useGetFungibleAssetBalance } from "@/hooks/useGetFungibleAmount";
+import { useGetFungibleAssetBalance } from "@/hooks/useGetFungibleAmount";
 import { aptosClient } from "@/utils/aptosClient";
 import { wrapToken } from "@/entry-functions/wrap_token";
 import { unWrapToken } from "@/entry-functions/unwrap_token";
@@ -96,23 +91,15 @@ const SelectCoinInput: React.FC<{
 
 const WrapUnwrapForm: React.FC<{
   selectedMarket: ApiMarket;
-  token_type: string;
+  tokenType: string;
   mode: "wrap" | "unwrap";
-}> = ({ selectedMarket, mode, token_type }) => {
+}> = ({ selectedMarket, mode, tokenType }) => {
   const { account, signAndSubmitTransaction } = useWallet();
   const queryClient = useQueryClient();
 
   const { data: fungibleAssetBalance } = useGetFungibleAssetBalance(
     account?.address ?? "",
-    token_type
-  );
-
-  const [selectedCoin, setSelectedCoin] = useState<boolean>(false);
-
-  const { data: marketAccountBalance } = useMarketAccountBalance(
-    account?.address,
-    selectedMarket.market_id,
-    selectedMarket.base,
+    tokenType
   );
 
   const [amount, setAmount] = useState<string>("");
@@ -138,7 +125,7 @@ const WrapUnwrapForm: React.FC<{
       mode === "wrap"
         ? wrapToken({
           coin_type: TypeTag.fromApiCoin(selectedMarket.base).toString(),
-          fa_metadata: token_type,
+          fa_metadata: tokenType,
           amount: parseFloat(amount),
         })
         : unWrapToken({
@@ -171,7 +158,7 @@ const WrapUnwrapForm: React.FC<{
           coin={selectedMarket?.base}
           fa={fungibleAssetBalance}
           mode={mode}
-          onSelectCoin={setSelectedCoin}
+          onSelectCoin={() => { }}
           startAdornment={mode === "wrap" ? "Wrap Coin" : "Unwrap Coin"}
         />
         <div className="mt-3">
@@ -220,9 +207,8 @@ const WrapUnwrapForm: React.FC<{
 
 export const WrapUnwrapContent: React.FC<{
   selectedMarket: ApiMarket;
-  token_type: string;
-  isRegistered: boolean;
-}> = ({ selectedMarket, isRegistered, token_type = "0xd9e99bdb67eb7af070cbfb89ae1bec20198b3fbd6d254d796a13bca20389faed" }) => {
+  tokenType: string;
+}> = ({ selectedMarket, tokenType }) => {
   return (
     <div className="px-[34.79px] pb-[33px] pt-[37px]">
       <h2 className="font-jost text-xl font-bold">
@@ -241,14 +227,14 @@ export const WrapUnwrapContent: React.FC<{
           <TabPanel>
             <WrapUnwrapForm
               selectedMarket={selectedMarket}
-              token_type={token_type}
+              tokenType={tokenType}
               mode="wrap"
             />
           </TabPanel>
           <TabPanel>
             <WrapUnwrapForm
               selectedMarket={selectedMarket}
-              token_type={token_type}
+              tokenType={tokenType}
               mode="unwrap"
             />
           </TabPanel>

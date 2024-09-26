@@ -69,9 +69,9 @@ export const TradeHistoryTable: React.FC<{
       columnHelper.accessor("time", {
         cell: (info) => {
           const timestampString = info.getValue();
-          const timestamp = new Date(timestampString);
-          const currentTime = new Date();
-          const timeDifference = currentTime.getTime() - timestamp.getTime();
+          // const timestamp = new Date(timestampString);
+          // const currentTime = new Date();
+          // const timeDifference = currentTime.getTime() - timestamp.getTime();
           // const hoursDifference = timeDifference / (1000 * 60 * 60);
 
           return (

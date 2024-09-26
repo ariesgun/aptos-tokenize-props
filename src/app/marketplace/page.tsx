@@ -43,7 +43,7 @@ function App() {
           {
             data?.tokens && data?.tokens.length > 0 && data?.tokens.map((el) => {
               const listing_info = listings.find((listing_el) => listing_el.ownership_token === el.token_data_id)
-              console.log("listing", listing_info)
+
               return (
                 <div key={el?.token_data_id}>
                   <PropertyMarketplaceCard

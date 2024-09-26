@@ -32,7 +32,7 @@ export const DepositWithdrawFlowModal: React.FC<Props> = ({
 
   const handleCheckRegisteredMarketAccount = useCallback(async () => {
     try {
-      if (!account?.address) {
+      if (!account?.address || !selectedMarket) {
         return false;
       }
       const isRegistered = await viewFunctions.hasMarketAccountByMarketId(

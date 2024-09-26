@@ -88,6 +88,7 @@ module tokenized_properties::controller {
         reward_pool: Object<RewardsPool>,
         minting_fee: u64,
         market_id: u64,
+        market_registered: bool,
         wrapper_coin: Option<address>,
     }
 
@@ -188,6 +189,7 @@ module tokenized_properties::controller {
                 reward_pool: reward_pool_obj,
                 minting_fee: public_mint_fee,
                 market_id: 0,
+                market_registered: false
                 wrapper_coin: option::none(),
             }
         );
@@ -375,6 +377,8 @@ module tokenized_properties::controller {
             tick_size,
             min_size
         );
+
+        listing_status.market_registered = true;
     }
 
     public entry fun set_market_id(
@@ -421,7 +425,7 @@ module tokenized_properties::controller {
 
     #[view]
     public fun get_listing_info(listing: Object<ListingInfo>): (
-        u8, u64, u64, u128, u64, u64, address, address, u64
+        u8, u64, u64, u128, u64, u64, address, address, u64, Option<address>
     ) acquires ListingInfo {
         let listing_info: &ListingInfo = borrow_global<ListingInfo>(object::object_address(&listing));
         (
@@ -434,6 +438,7 @@ module tokenized_properties::controller {
             object::object_address(&listing_info.ownership_token),
             object::object_address(&listing_info.reward_pool),
             listing_info.market_id,
+            listing_info.wrapper_coin,
         )
     }
 

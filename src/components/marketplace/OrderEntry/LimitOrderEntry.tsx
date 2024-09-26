@@ -30,7 +30,7 @@ type LimitFormValues = {
   totalSize: string;
 };
 export const HI_PRICE = 4294967295;
-export const MIN_PRICE = 1;
+export const MIN_PRICE = 0.1;
 
 export const LimitOrderEntry: React.FC<{
   marketData: ApiMarket;
@@ -174,9 +174,6 @@ export const LimitOrderEntry: React.FC<{
       baseCoinDecimals: marketData.base.decimals,
       quoteCoinDecimals: marketData.quote.decimals,
     });
-
-
-    console.log("rawPrice", rawPrice)
 
     // if (!rawPrice.modulo(marketData.tick_size).eq(0)) {
     //   console.log("W", rawPrice.modulo(marketData.tick_size))

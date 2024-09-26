@@ -25,8 +25,6 @@ const Row: React.FC<{
   const [flash, setFlash] = useState<"flash-red" | "flash-green" | "">("");
   const { focus, setFocus } = useOrderBookData(marketData);
 
-  console.log(type, level, highestSize)
-
   useEffect(() => {
     if (updatedLevel == undefined) {
       return;

@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import Placeholder1 from "@/assets/placeholders/bear-1.png";
 import { createSecondaryMarketStep1, createSecondaryMarketStep2, createSecondaryMarketStep3 } from "@/entry-functions/create_secondary_market_step_1";
 import { aptosClient } from "@/utils/aptosClient";
-import { Account, AccountAddressInput, Ed25519PrivateKey, MoveVector, TransactionResponse, U8, UserTransactionResponse } from "@aptos-labs/ts-sdk";
+import { TransactionResponse, UserTransactionResponse } from "@aptos-labs/ts-sdk";
 import { getCoinTypeFromListing } from "@/view-functions/getCoinType";
 
 
@@ -32,6 +32,11 @@ export function PropertyMarketplaceCard({
 
     const [tokenMetadata, setTokenMetadata] = useState<any>({});
 
+    const [setupStep, setSetupStep] = useState<number>(1);
+    const [coinType, setCoinType] = useState<string>("");
+    const [registerTransactionHash, setRegisterTransactionHash] = useState<string>("");
+    const [marketId, setMarketId] = useState<number>(-1);
+
     useEffect(() => {
         const getTokenMetadata = async () => {
             try {
@@ -51,59 +56,81 @@ export function PropertyMarketplaceCard({
         if (!account) return;
         if (!listing_info) return;
 
-        let url = new URL("http://78.141.200.67:3000/build")
-        // let url = new URL("http://127.0.0.1:3005/build")
-        url.search = new URLSearchParams({
-            fa_metadata: listing_info.ownership_token,
-        }).toString();
+        if (setupStep == 1) {
+            try {
+                let url = new URL("http://78.141.200.67:3000/build")
+                // let url = new URL("http://127.0.0.1:3005/build")
+                url.search = new URLSearchParams({
+                    fa_metadata: listing_info.ownership_token,
+                }).toString();
 
-        const res = await fetch(url)
-        const payload = await res.json();
-        console.log("payload", url, payload)
+                const res = await fetch(url)
+                const payload = await res.json();
+                console.log("payload", url, payload)
 
-        const transaction = createSecondaryMarketStep1({
-            listingInfo: listing_info.address,
-            metadata_serialized: payload.metadata.substring(2),
-            code: payload.byteCode,
-        });
-        console.log("Transac", transaction)
-        const response = await signAndSubmitTransaction(
-            transaction
-        );
-        await aptosClient().waitForTransaction({
-            transactionHash: response.hash,
-        })
+                const transaction = createSecondaryMarketStep1({
+                    listingInfo: listing_info.address,
+                    metadata_serialized: payload.metadata.substring(2),
+                    code: payload.byteCode,
+                });
+                console.log("Transac", transaction)
+                const response = await signAndSubmitTransaction(
+                    transaction
+                );
+                await aptosClient().waitForTransaction({
+                    transactionHash: response.hash,
+                })
+                const coin_type = await getCoinTypeFromListing({
+                    listingInfo: listing_info.address,
+                })
 
-        const coin_type = await getCoinTypeFromListing({
-            listingInfo: listing_info.address,
-        })
-        console.log("aa", coin_type)
+                setCoinType(coin_type)
+                setSetupStep(2);
+            } catch (e) {
+                console.error("Unable to execute create secondary market step 1", e);
+                throw e;
+            }
+        } else if (setupStep === 2) {
 
-        const response2 = await signAndSubmitTransaction(
-            createSecondaryMarketStep2({
-                listingInfo: listing_info.address,
-                coin_type
-            })
-        );
-        await aptosClient().waitForTransaction({ transactionHash: response2.hash })
+            try {
+                const response2 = await signAndSubmitTransaction(
+                    createSecondaryMarketStep2({
+                        listingInfo: listing_info.address,
+                        coin_type: coinType
+                    })
+                );
+                await aptosClient().waitForTransaction({ transactionHash: response2.hash })
+                setRegisterTransactionHash(response2.hash);
+                setSetupStep(3);
+            } catch (e) {
+                console.error("Unable to cxecute create secondary market step 2", e);
+            }
 
-        const transactions: TransactionResponse = await aptosClient().getTransactionByHash({
-            transactionHash: response2.hash
-        })
-        console.log("Events", (transactions as UserTransactionResponse).events)
-        const registrationEvent = (transactions as UserTransactionResponse).events.filter((el) =>
-            el.type.includes("MarketRegistrationEvent")
-        );
-        const market_id = parseInt(registrationEvent[0].data.market_id)
-        const transaction3 = createSecondaryMarketStep3({
-            listingInfo: listing_info.address,
-            market_id
-        });
-        console.log("Transac", transaction3)
-        const response3 = await signAndSubmitTransaction(
-            transaction3
-        );
-        await aptosClient().waitForTransaction({ transactionHash: response3.hash })
+        } else if (setupStep == 3) {
+            try {
+                const transactions: TransactionResponse = await aptosClient().getTransactionByHash({
+                    transactionHash: registerTransactionHash
+                })
+                console.log("Events", (transactions as UserTransactionResponse).events)
+                const registrationEvent = (transactions as UserTransactionResponse).events.filter((el) =>
+                    el.type.includes("MarketRegistrationEvent")
+                );
+                const market_id = parseInt(registrationEvent[0].data.market_id)
+                const transaction3 = createSecondaryMarketStep3({
+                    listingInfo: listing_info.address,
+                    market_id
+                });
+                console.log("Transac", transaction3)
+                const response3 = await signAndSubmitTransaction(
+                    transaction3
+                );
+                await aptosClient().waitForTransaction({ transactionHash: response3.hash })
+                setSetupStep(4);
+                setMarketId(market_id)
+            } catch (e) {
+                console.error("Unable to cxecute create secondary market step 3", e);
+            }
+        }
 
         queryClient.invalidateQueries();
     }
@@ -145,7 +172,7 @@ export function PropertyMarketplaceCard({
                         <Separator className="my-2" />
 
                         {
-                            listing_info && listing_info.market_id ?
+                            listing_info && (listing_info.market_id || marketId !== -1) ?
                                 <Link href={`/marketplace/${token_data.token_data_id}`}>
                                     <Button className="w-full my-2 py-6 mb-0">
                                         <p className="text-md">Buy / Sell 💸</p>
@@ -157,7 +184,8 @@ export function PropertyMarketplaceCard({
                                         <p className="text-md">Secondary Market Closed</p>
                                     </Button>
                                     <Button className="w-full my-2 py-6 mb-0" onClick={setupMarketplace}>
-                                        <p className="text-md">Setup secondary market</p>
+                                        <p className="text-md">
+                                            {`Setup secondary market (Step ${setupStep} / 3)`}</p>
                                     </Button>
                                 </>
                         }
