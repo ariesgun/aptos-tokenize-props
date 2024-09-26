@@ -129,7 +129,7 @@ export const MintCard: React.FC<MintCardProps> = ({
                     <form onSubmit={mintToken} className="flex flex-col gap-4 w-full md:basis-1/4">
                         <Input
                             type="number"
-                            // disabled={!data?.isMintActive}
+                            disabled={!listingInfo?.is_mint_active}
                             value={nftCount}
                             onChange={(e) => setNftCount(parseInt(e.currentTarget.value, 10))}
                         />
@@ -146,7 +146,7 @@ export const MintCard: React.FC<MintCardProps> = ({
                         <Button
                             className="h-16 md:h-auto"
                             type="submit"
-                        // disabled={!data?.isMintActive}
+                            disabled={!listingInfo?.is_mint_active}
                         >
                             Mint
                         </Button>

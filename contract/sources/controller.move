@@ -8,6 +8,7 @@ module tokenized_properties::controller {
     use aptos_framework::fungible_asset::{Self, Metadata, FungibleAsset};
     use aptos_framework::object::{Self, Object, ExtendRef};
     use aptos_framework::primary_fungible_store;
+    use aptos_framework::timestamp;
     use aptos_std::type_info;
 
     use tokenized_properties::ownership_token;
@@ -18,6 +19,7 @@ module tokenized_properties::controller {
 
     use std::bcs;
     use std::debug;
+    use std::error;
     use std::option::{Self, Option};
     use std::signer;
     use std::string::{String, utf8};
@@ -27,18 +29,23 @@ module tokenized_properties::controller {
 
     /// Caller is not authorized to make this call
     const EUNAUTHORIZED: u64 = 1;
-
     /// No operations are allowed when contract is paused
     const EPAUSED: u64 = 2;
-
     /// Given Coin Type does not match the one registered in this listing
     const ECOIN_TYPE_NOT_MATCH_REGISTERED_COIN_TYPE_IN_LISTING: u64 = 3;
-
     /// No remaining share for this listing
     const ENO_REMAINING_SHARES: u64 = 4;
-
     // Listing is not active
     const ELISTING_NOT_ACTIVE: u64 = 5;
+    /// The mint stage start time must be less than the mint stage end time.
+    const EINVALID_START_TIME: u64 = 6;
+    /// The mint stage end time must be greater than the current time.
+    const EINVALID_END_TIME: u64 = 7;
+    /// The mint stage has not started yet.
+    const EMINT_NOT_STARTED: u64 = 8;
+    /// The mint stage has ended.
+    const EMINT_ENDED: u64 = 9;
+
 
     const APP_OBJECT_SEED: vector<u8> = b"PROP_CONTROLLER";
 
@@ -155,6 +162,9 @@ module tokenized_properties::controller {
         // Only an admin can issue a new token.
         assert_is_admin(admin);
 
+        assert!(public_mint_start_time < public_mint_end_time, error::invalid_argument(EINVALID_START_TIME));
+        assert!(public_mint_end_time > timestamp::now_seconds(), error::invalid_argument(EINVALID_END_TIME));
+
         let listing_owner_constructor_ref = &object::create_object(@tokenized_properties);
         let listing_owner_signer = object::generate_signer(listing_owner_constructor_ref);
 
@@ -189,7 +199,7 @@ module tokenized_properties::controller {
                 reward_pool: reward_pool_obj,
                 minting_fee: public_mint_fee,
                 market_id: 0,
-                market_registered: false
+                market_registered: false,
                 wrapper_coin: option::none(),
             }
         );
@@ -219,8 +229,14 @@ module tokenized_properties::controller {
         // Check remaining shares > 0
         assert!(remaining_shares(token_object) >= (amount as u128), ENO_REMAINING_SHARES);
 
-        // Check if the listing is still active or not.
         let listing_info = borrow_global<ListingInfo>(object::object_address(&token_object));
+
+        // Check the end date and start date
+        let current_time = timestamp::now_seconds();
+        assert!(current_time >= listing_info.start_date, error::invalid_state(EMINT_NOT_STARTED));
+        assert!(current_time < listing_info.end_date, error::invalid_state(EMINT_ENDED));
+
+        // Check if the listing is still active or not.
         assert!(listing_info.status == 1, ELISTING_NOT_ACTIVE);
 
         // Transfer token to this contract? (APT or USDC). amount * UNIT_PRICE
@@ -354,7 +370,7 @@ module tokenized_properties::controller {
     ) acquires ListingInfo, Roles {
         assert_is_admin(admin);
 
-        let listing_status: &ListingInfo = borrow_global<ListingInfo>(
+        let listing_status: &mut ListingInfo = borrow_global_mut<ListingInfo>(
             object::object_address(&listing)
         );
         let type_info = &type_info::type_of<QuoteAssetType>();
@@ -425,7 +441,7 @@ module tokenized_properties::controller {
 
     #[view]
     public fun get_listing_info(listing: Object<ListingInfo>): (
-        u8, u64, u64, u128, u64, u64, address, address, u64, Option<address>
+        u8, u64, u64, u128, u64, u64, address, address, u64, Option<address>, bool
     ) acquires ListingInfo {
         let listing_info: &ListingInfo = borrow_global<ListingInfo>(object::object_address(&listing));
         (
@@ -439,6 +455,7 @@ module tokenized_properties::controller {
             object::object_address(&listing_info.reward_pool),
             listing_info.market_id,
             listing_info.wrapper_coin,
+            listing_info.market_registered,
         )
     }
 
@@ -471,6 +488,9 @@ module tokenized_properties::controller {
         coin_wrapper::initialize();
 
         init_module(admin);
+
+        timestamp::set_time_has_started_for_testing(core);
+        timestamp::fast_forward_seconds(50);
 
         create_entry(
             admin,
