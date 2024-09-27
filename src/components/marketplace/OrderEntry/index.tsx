@@ -21,7 +21,7 @@ export const OrderEntry: React.FC<{
         <button
           onClick={() => setSide("buy")}
           className={`w-full border-2 py-2 font-jost font-bold ${side === "buy"
-            ? "border-green bg-green border-opacity-80 text-white"
+            ? "border-green-300 bg-green-800 border-opacity-80 text-white"
             : "border-gray-300 bg-gray-200 text-neutral-600"
             }`}
         >

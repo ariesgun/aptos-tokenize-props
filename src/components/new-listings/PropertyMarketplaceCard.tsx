@@ -12,6 +12,8 @@ import { createSecondaryMarketStep1, createSecondaryMarketStep2, createSecondary
 import { aptosClient } from "@/utils/aptosClient";
 import { TransactionResponse, UserTransactionResponse } from "@aptos-labs/ts-sdk";
 import { getCoinTypeFromListing } from "@/view-functions/getCoinType";
+import { create } from "@/actions/actions";
+import { CREATOR_ADDRESS } from "@/constants";
 
 
 export interface PropertyMarketplaceCardProps {
@@ -58,15 +60,9 @@ export function PropertyMarketplaceCard({
 
         if (setupStep == 1) {
             try {
-                let url = new URL("http://78.141.200.67:3000/build")
-                // let url = new URL("http://127.0.0.1:3005/build")
-                url.search = new URLSearchParams({
-                    fa_metadata: listing_info.ownership_token,
-                }).toString();
 
-                const res = await fetch(url)
-                const payload = await res.json();
-                console.log("payload", url, payload)
+                const payload = await create(listing_info.ownership_token);
+                console.log("payload", payload)
 
                 const transaction = createSecondaryMarketStep1({
                     listingInfo: listing_info.address,
@@ -183,10 +179,21 @@ export function PropertyMarketplaceCard({
                                     <Button disabled className="w-full my-2 py-6 mb-0">
                                         <p className="text-md">Secondary Market Closed</p>
                                     </Button>
-                                    <Button className="w-full my-2 py-6 mb-0" onClick={setupMarketplace}>
-                                        <p className="text-md">
-                                            {`Setup secondary market (Step ${setupStep} / 3)`}</p>
-                                    </Button>
+                                    {
+                                        account?.address === CREATOR_ADDRESS && (
+                                            <>
+                                                {listing_info?.is_mint_active ?
+                                                    < Button className="w-full my-2 py-6 mb-0" onClick={setupMarketplace}>
+                                                        <p className="text-md">
+                                                            {`Setup secondary market (Step ${setupStep} / 3)`}</p>
+                                                    </Button>
+                                                    : <Button disabled className="w-full my-2 py-6 mb-0">
+                                                        <p className="text-md">Minting Period is Still Active</p>
+                                                    </Button>
+                                                }
+                                            </>
+                                        )
+                                    }
                                 </>
                         }
                     </div>
