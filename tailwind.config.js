@@ -1,4 +1,5 @@
 const plugin = require("tailwindcss/plugin");
+const colors = require('tailwindcss/colors')
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -18,8 +19,8 @@ module.exports = {
         purple: "#8c3dd8",
         blue: "#086cd9",
         "light-blue": "#62c6f8",
-        green: "#6ed5a3",
         yellow: "#eef081",
+        green: colors.green,
         red: "#d56e6e",
         neutral: {
           100: "#FFFFFF",
@@ -39,6 +40,17 @@ module.exports = {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          50: "#eff6ff",
+          100: "#dbeafe",
+          200: "#bfdbfe",
+          300: "#93c5fd",
+          400: "#60a5fa",
+          500: "#3b82f6",
+          600: "#2563eb",
+          700: "#1d4ed8",
+          800: "#1e40af",
+          900: "#1e3a8a",
+          950: "#172554"
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",

@@ -11,7 +11,7 @@ import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import { useGetTokenData } from "@/hooks/useGetTokensOfCollection";
 
-import Placeholder1 from "@/assets/placeholders/bear-1.png";
+import Placeholder1 from "@/assets/placeholders/bear-1.jpg";
 
 export interface PropertyCardSectionProps {
     token_data: any;

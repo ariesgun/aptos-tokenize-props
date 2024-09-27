@@ -2,7 +2,7 @@ import React from "react";
 import { ApiMarket } from "./types/api";
 import { Card, CardContent } from "../ui/card";
 
-import Placeholder1 from "@/assets/placeholders/bear-1.png";
+import Placeholder1 from "@/assets/placeholders/bear-1.jpg";
 import Image from "next/image";
 
 

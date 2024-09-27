@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 
-import Placeholder1 from "@/assets/placeholders/bear-1.png";
+import Placeholder1 from "@/assets/placeholders/bear-1.jpg";
 import { createSecondaryMarketStep1, createSecondaryMarketStep2, createSecondaryMarketStep3 } from "@/entry-functions/create_secondary_market_step_1";
 import { aptosClient } from "@/utils/aptosClient";
 import { TransactionResponse, UserTransactionResponse } from "@aptos-labs/ts-sdk";

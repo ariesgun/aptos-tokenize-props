@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from "react";
 // Internal assets
 import Copy from "@/assets/icons/copy.svg";
 import ExternalLink from "@/assets/icons/external-link.svg";
-import Placeholder1 from "@/assets/placeholders/bear-1.png";
+import Placeholder1 from "@/assets/placeholders/bear-1.jpg";
 // Internal utils
 import { truncateAddress } from "@/utils/truncateAddress";
 import { formatDate } from "@/utils/formatDate";
@@ -17,8 +17,6 @@ import { NETWORK } from "@/constants";
 interface PropertyHeroSectionProps {
   tokenId: string | undefined;
   propertyName: string | undefined;
-  propertyAddress: string | undefined;
-  propertyDescription: string | undefined;
   propertyMetadata: any;
   listingInfo: any;
 }

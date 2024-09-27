@@ -12,6 +12,7 @@ import { useGetTokensOfCollection } from "@/hooks/useGetTokensOfCollection";
 import { PropertyHeroSection } from "@/components/new-listings/PropertyHeroSection";
 import { config } from "@/config";
 import { useGetListings } from "@/hooks/useGetListings";
+import { PropertyDetailTab } from "@/components/new-listings/PropertyDetailTab";
 
 export default function Page({ params }: { params: { id: string } }) {
 
@@ -69,19 +70,20 @@ export default function Page({ params }: { params: { id: string } }) {
           <PropertyHeroSection
             tokenId={tokenData?.token_data_id}
             propertyName={tokenData?.token_name ?? config.defaultCollection?.name}
-            propertyAddress="The address"
-            propertyDescription="The description"
             propertyMetadata={tokenMetadata}
             listingInfo={listingInfo}
           />
-          <MintCard
-            tokenId={tokenData?.token_data_id}
-            propertyName={tokenData?.token_name ?? config.defaultCollection?.name}
-            propertyAddress="The address"
-            propertyDescription="The description"
+          <PropertyDetailTab
             propertyMetadata={tokenMetadata}
-            listingInfo={listingInfo}
           />
+          {listingInfo?.is_mint_active &&
+            <MintCard
+              tokenId={tokenData?.token_data_id}
+              propertyName={tokenData?.token_name ?? config.defaultCollection?.name}
+              propertyMetadata={tokenMetadata}
+              listingInfo={listingInfo}
+            />
+          }
         </main>
 
       </div>

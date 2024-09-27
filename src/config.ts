@@ -1,4 +1,4 @@
-import Placeholder1 from "@/assets/placeholders/bear-1.png";
+import Placeholder1 from "@/assets/placeholders/bear-1.jpg";
 import Placeholder2 from "@/assets/placeholders/bear-2.png";
 import Placeholder3 from "@/assets/placeholders/bear-3.png";
 
@@ -20,7 +20,7 @@ export const config: Config = {
         title: "Our Story",
         subTitle: "Proin lorem",
         description:
-            "Phasellus pellentesque malesuada pretium. Vestibulum sed justo at velit rhoncus finibus nec quis urna. Aenean rutrum congue tincidunt. Praesent id urna quis risus sodales feugiat vitae quis orci. Proin tincidunt eu nisi quis sollicitudin. Nulla facilisis eget tellus quis fermentum. Nunc vel neque at erat dictum tempus. Aliquam in mollis lacus, non fringilla lacus. Nunc blandit iaculis ante vitae pulvinar.",
+            "This tokenized real estate project allows investors to participate in fractional ownership of premium properties. Using blockchain technology, we offer secure, transparent, and accessible investment opportunities in the real estate sector.",
         discordLink: "https://discord.com",
         images: [Placeholder1.src, Placeholder2.src, Placeholder3.src],
     },

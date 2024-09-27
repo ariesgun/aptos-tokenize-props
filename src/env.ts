@@ -33,3 +33,5 @@ export const DEFAULT_MARKET_ID = Number(
 
 export const INTEGRATOR_ADDRESS =
   process.env.NEXT_PUBLIC_INTEGRATOR_ADDRESS ?? "0x1";
+
+export const MAP_API_KEY = process.env.NEXT_PUBLIC_MAP_API_KEY;

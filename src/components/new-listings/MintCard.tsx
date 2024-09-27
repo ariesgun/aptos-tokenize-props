@@ -13,8 +13,6 @@ import { buyShares } from "@/entry-functions/buy_shares";
 interface MintCardProps {
     tokenId: string | undefined;
     propertyName: string | undefined;
-    propertyAddress: string | undefined;
-    propertyDescription: string | undefined;
     propertyMetadata: any;
     listingInfo: any;
 }
