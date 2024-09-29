@@ -132,7 +132,7 @@ export function useGetFungibleAssetBalance(
       try {
         if (!owner_address || !token_type) return null;
 
-        const fungible_res = await aptosClient().queryIndexer<TokenQueryResult>({
+        const fungible_balance_res = await aptosClient().queryIndexer<TokenQueryResult>({
           query: {
             variables: {
               owner_address: owner_address,
@@ -160,11 +160,44 @@ export function useGetFungibleAssetBalance(
           },
         });
 
+        const fungible_res = await aptosClient().queryIndexer<TokenQueryResult>({
+          query: {
+            variables: {
+              token_type: token_type,
+            },
+            query: `
+						query PropsTokenQuery($owner_address: String, $token_type: String) {
+							current_fungible_asset_balances(
+                  where: { asset_type_v2: { _eq: $token_type } }
+              ) {
+                  amount_v2
+                  asset_type_v2
+                  metadata {
+                      icon_uri
+                      maximum_v2
+                      project_uri
+                      supply_aggregator_table_handle_v1
+                      supply_aggregator_table_key_v1
+                      supply_v2
+                      symbol
+                      token_standard
+                  }
+							}
+						}`,
+          },
+        });
+
         const fungible_assets = fungible_res.current_fungible_asset_balances;
         if (!fungible_assets || fungible_assets.length == 0) return {};
 
-        console.log("FF", fungible_assets[0])
-        return fungible_assets[0]
+        const balance = (fungible_balance_res.current_fungible_asset_balances && fungible_balance_res.current_fungible_asset_balances.length > 0) ?
+          fungible_balance_res.current_fungible_asset_balances[0].amount_v2 : 0
+
+
+        return {
+          metadata: fungible_assets[0].metadata,
+          amount: balance
+        }
 
       } catch (error) {
         console.error("Error", error);

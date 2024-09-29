@@ -111,7 +111,7 @@ const WrapUnwrapForm: React.FC<{
   const disabledReason = useMemo(() => {
     return balance == null || fungibleAssetBalance == null
       ? "Loading balance..."
-      : (mode === "wrap" && parseFloat(amount) > fungibleAssetBalance?.amount_v2) ||
+      : (mode === "wrap" && parseFloat(amount) > fungibleAssetBalance?.amount) ||
         (mode === "unwrap" && parseFloat(amount) > balance)
         ? "Not enough coins"
         : null;
@@ -184,7 +184,7 @@ const WrapUnwrapForm: React.FC<{
             Fungible Token Amount
           </p>
           <p className="font-roboto-mono text-[13px] font-light uppercase tracking-[0.26px]">
-            {fungibleAssetBalance?.amount_v2 ?? "--"} {fungibleAssetBalance?.metadata?.symbol}
+            {fungibleAssetBalance?.amount ?? "--"} {fungibleAssetBalance?.metadata?.symbol}
           </p>
         </div>
         <Button
